@@ -8,20 +8,20 @@ router.get('/all', async(req,res)=>{
     res.send(result);
 })
 
-router.post('/',(req,res)=>{
+router.post('/',async(req,res)=>{
     const story =  Story({
-        title: 'Story1',
-        description: 'First story',
-        language: 'de',
-        level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Native',
-        authorId: 'mind1',
+        title: req.body.title,
+        description: req.body.description,
+        language: req.body.language,
+        level:req.body.targetLevel,
+        authorId: '?',
         overallRating: 0,
         lastPageAddedAt: new Date(),
-        openEnded: true,
+        openEnded: false,
         pages: null,
         pendingPages: null
-    })
-    story.save();
+    });
+    await story.save();
     res.send('story created');
 })
 

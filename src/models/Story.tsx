@@ -6,7 +6,7 @@ type Page = {
 }
 
 export type Story = {
-    _id:string;
+    _id?:string;
     title: string;
     description: string;
     language: string;
