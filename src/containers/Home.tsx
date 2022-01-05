@@ -4,6 +4,7 @@ import StoryPage from "./StoryPage";
 import ModalWrapper from "../components/Modal/ModalWrapper";
 import { Level } from "../models/LanguageLevel";
 import { Form } from "../components/Form";
+import Trigger from "../components/Modal/Trigger";
 
 type StorySummary = {
     _id: string;
@@ -46,8 +47,8 @@ const Home: React.FC = () => {
     }
 
     const mainContent = <>
+     <Trigger text={'Create new story' } toggleModal={toggleModal} />
         <ModalWrapper 
-        triggerText='Create new story' 
         visibility={showModal} 
         toggleModal={toggleModal}>
             <Form onSubmit={createNewStory} />
