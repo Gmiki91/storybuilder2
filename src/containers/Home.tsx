@@ -6,7 +6,7 @@ import { NewStoryForm } from "../components/forms/NewStoryForm";
 import Trigger from "../components/modal/Trigger";
 import StoryList from "../components/StoryList";
 import { StorySummary } from "../components/StorySummary";
-type SortOption = keyof StorySummary;
+
 const Home: React.FC = () => {
     console.log('[HOME] render')
     const [storyId, setStoryId] = useState<string>();
@@ -15,20 +15,14 @@ const Home: React.FC = () => {
     const [sortDirection, setSortDirection] = useState<number>(1);
     const [showModal, setShowModal] = useState(false);
 
-    const sortList = useCallback((list: StorySummary[]) => {
-        const sortedList = [...list];
-        const option = sortBy as SortOption;
-        sortedList.sort((a, b) => a[option] > b[option] ? sortDirection : -sortDirection);
-        setStories(sortedList);
+    const getSortedList = useCallback(() => {
+        axios.get<StorySummary[]>(`${process.env.REACT_APP_LOCAL_HOST}stories/${sortBy}/${sortDirection}`)
+        .then( result => setStories(result.data));
     }, [sortBy, sortDirection]);
 
-    const updateList = useCallback(() => {
-        axios.get<StorySummary[]>(`${process.env.REACT_APP_LOCAL_HOST}stories/all/`).then(result => sortList(result.data));
-    }, [sortList]);
-
     useEffect(() => {
-        updateList();
-    }, [updateList]);
+        getSortedList();
+    }, []);
 
     const storyClicked = (storyId: string) => {
         setStoryId(storyId);
@@ -47,7 +41,7 @@ const Home: React.FC = () => {
             language: form.language.value,
             targetLevel: form.level.value,
         }
-        axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/`, story).then(() => updateList());
+        axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/`, story).then(() => getSortedList());
         toggleModal();
     }
 

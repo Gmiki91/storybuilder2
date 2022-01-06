@@ -3,10 +3,15 @@ const router = express.Router();
 
 const Story = require('../models/story');
 
-router.get('/all', async (req, res) => {
+router.get('/:sortBy/:direction', async (req, res) => {
+    const sortBy = req.params.sortBy
+    const sortDirection = req.params.direction;
+    const sortObject = {};
+    sortObject[sortBy] = sortDirection;
     const result = await Story
         .find()
-        .sort({rating: 'descending'});
+        .sort(sortObject)
+        .limit(50);
     res.send(result);
 })
 
