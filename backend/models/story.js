@@ -6,8 +6,8 @@ const storySchema = mongoose.Schema({
     language: String,
     level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Native',
     authorId: String,
-    overallRating: Number,
-    lastPageAddedAt: Date,
+    rating: Number,
+    updatedAt: Date,
     openEnded: Boolean,
     pages: [{
         pageNumber: Number,

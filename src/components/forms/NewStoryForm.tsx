@@ -1,10 +1,10 @@
-import './Form.css';
+import './NewStoryForm.css';
 
-type FormProps = {
+type Props = {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const Form: React.FC<FormProps> = ({ onSubmit }) => {
+export const NewStoryForm: React.FC<Props> = ({ onSubmit }) => {
   return (
     <form className="form-box" onSubmit={onSubmit}>
       <div >
@@ -28,4 +28,4 @@ export const Form: React.FC<FormProps> = ({ onSubmit }) => {
     </form>
   );
 };
-export default Form;
+export default NewStoryForm;

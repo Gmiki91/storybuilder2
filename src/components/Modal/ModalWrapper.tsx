@@ -1,11 +1,11 @@
-import { Modal } from "./Modal";
+import { Modal } from "../modal/Modal"
 
-type ModalContainerProps = {
+type Props = {
     visibility: boolean;
     toggleModal: () => void;
 }
 
-const ModalWrapper: React.FC<ModalContainerProps> = ({ visibility, toggleModal, children }) => {
+const ModalWrapper: React.FC<Props> = ({ visibility, toggleModal, children }) => {
     return <>
         {visibility
             ? <Modal

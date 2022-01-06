@@ -3,20 +3,22 @@ const router = express.Router();
 
 const Story = require('../models/story');
 
-router.get('/all', async(req,res)=>{
-    const result = await Story.find();
+router.get('/all', async (req, res) => {
+    const result = await Story
+        .find()
+        .sort({rating: 'descending'});
     res.send(result);
 })
 
-router.post('/',async(req,res)=>{
-    const story =  Story({
+router.post('/', async (req, res) => {
+    const story = Story({
         title: req.body.title,
         description: req.body.description,
         language: req.body.language,
-        level:req.body.targetLevel,
+        level: req.body.targetLevel,
         authorId: '?',
         overallRating: 0,
-        lastPageAddedAt: new Date(),
+        updatedAt: new Date(),
         openEnded: false,
         pages: null,
         pendingPages: null

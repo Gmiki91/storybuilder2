@@ -1,9 +1,9 @@
-type TriggerProps={
+type Props={
     text:string,
     toggleModal:()=>void
 }
 
-const Trigger = ({ text,  toggleModal }:TriggerProps) => {
+const Trigger = ({ text,  toggleModal }:Props) => {
   return (
     <button onClick={toggleModal}>{text}</button>
   );

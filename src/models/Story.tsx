@@ -12,8 +12,8 @@ export type Story = {
     language: string;
     targetLevel: Level;
     authorId: string;
-    overallRating: number;
-    lastPageAddedAt: Date;
+    rating: number;
+    updatedAt: Date;
     openForSubmissions: boolean;
     pages: Page[];
     pendingPageIds: string[]

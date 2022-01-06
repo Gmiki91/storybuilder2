@@ -1,0 +1,33 @@
+import { SortBy } from "./SortBy";
+import { StoryCard } from "./StoryCard";
+import { StorySummary } from "../components/StorySummary";
+
+type Props = {
+    stories: StorySummary[];
+    storyClicked: (id: string) => void;
+    handleSortBy:(sortBy:string)=>void;
+    handleSortDirection:(sortDirection:number)=>void;
+}
+
+const StoryList: React.FC<Props> = ({stories, storyClicked, handleSortBy, handleSortDirection }) => {
+    console.log('[StoryList] render');
+
+    return <>
+        <SortBy
+            options={[
+                { text: 'Rating', value: 'rating' },
+                { text: 'Updated at', value: 'updatedAt' },
+            ]}
+            selectChanged={(e) => handleSortBy(e.target.value)}
+        />
+        <img style={{ width: '5%', height: '5%' }} src={require(`../assets/uparrow.png`)} alt="uparrow" onClick={() => handleSortDirection(1)} />
+        <img style={{ width: '5%', height: '5%' }} src={require(`../assets/downarrow.png`)} alt="downarrow" onClick={() => handleSortDirection(-1)} />
+        {stories.map(story =>
+            <StoryCard
+                story={story}
+                key={story._id}
+                onClick={() => storyClicked(story._id)} />
+        )}
+    </>
+}
+export default StoryList;
