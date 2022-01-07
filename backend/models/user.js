@@ -8,6 +8,7 @@ const user = mongoose.Schema({
     storyIdList: [String],
     pageIdList: [String],
     translationIdList: [String],
+    favoriteStoryIdList:[String],
     canAddToOwnStory: Boolean,
     writerRating: Number,
     translatorRating: Number

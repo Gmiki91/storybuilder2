@@ -7,27 +7,45 @@ import StoryList from "../components/StoryList";
 import { StorySummary } from "../components/StorySummary";
 import { FormTypes } from "../components/forms/FormTypes";
 
+type ListModifications = {
+    sortBy: string,
+    sortDirection: number,
+    from: string,
+    languages: string[],
+    level: string[],
+    openEnded: string;
+}
+
 const Home: React.FC = () => {
     console.log('[HOME] render')
+    const [listModifications, setListModifications] = useState<ListModifications>({
+        sortBy: 'rating',
+        sortDirection: 1,
+        from: 'all',
+        languages: [],
+        level: [],
+        openEnded: 'both'
+    });
     const [storyId, setStoryId] = useState<string>();
     const [stories, setStories] = useState<StorySummary[]>([]);
-    const [sortBy, setSortBy] = useState<string>('rating');
-    const [sortDirection, setSortDirection] = useState<number>(1);
     const [modalForm, setModalForm] = useState<FormTypes>('');
 
     const getSortedList = useCallback(() => {
-        axios.get<StorySummary[]>(`${process.env.REACT_APP_LOCAL_HOST}stories/${sortBy}/${sortDirection}`)
+        axios.post<StorySummary[]>(`${process.env.REACT_APP_LOCAL_HOST}stories/modifiedList`, listModifications)
             .then(result => setStories(result.data));
     }, [stories]);
 
     useEffect(() => {
         getSortedList();
-    }, [sortBy, sortDirection]);
+    }, [listModifications]);
 
     const storyClicked = (storyId: string) => {
-        setStoryId(storyId);
+        axios.delete(`${process.env.REACT_APP_LOCAL_HOST}stories/${storyId}`).then(() => getSortedList());
+        // setStoryId(storyId);
     }
-    const createNewStory = (event: React.FormEvent<HTMLFormElement>) => {
+
+    const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         const form = event.currentTarget;
         const story = {
             title: form.titel.value,
@@ -35,18 +53,26 @@ const Home: React.FC = () => {
             language: form.language.value,
             targetLevel: form.level.value,
         }
-        axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/`, story).then(() => getSortedList());
-        setModalForm('');
+        axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/`, story).then(() => {
+            getSortedList();
+            setModalForm('');
+        });
     }
-    const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+
+    const handleFilter = (event: React.FormEvent<HTMLFormElement>, lvls: string[], langs: string[]) => {
         event.preventDefault();
-        switch (modalForm) {
-            case 'filter':
-                break;
-            case 'newStory': createNewStory(event);
-                break;
-            default: return null;
-        }
+        const form = event.currentTarget;
+        console.log(lvls);
+        console.log(langs);
+        setListModifications(prevState => ({
+            ...prevState,
+            from: form.from.value,
+            languages: langs,
+            level: lvls,
+            openEnded: form.openEnded.value
+        }));
+        getSortedList();
+        setModalForm('');
     }
 
     const list = <>
@@ -54,16 +80,16 @@ const Home: React.FC = () => {
         <Trigger text={'Filter'} onClick={() => setModalForm('filter')} />
         <ModalWrapper
             form={modalForm}
-            onSubmit={handleFormSubmit}
+            onNewStory={handleFormSubmit}
+            onFilter={handleFilter}
             onClose={() => setModalForm('')}>
         </ModalWrapper>
         <br></br>
         <StoryList
             stories={stories}
             storyClicked={storyClicked}
-            handleSortDirection={setSortDirection}
-            handleSortBy={setSortBy} />
-
+            handleSortDirection={(e) => setListModifications(prevState => ({ ...prevState, sortDirection: e }))}
+            handleSortBy={(e) => setListModifications(prevState => ({ ...prevState, sortBy: e }))} />
     </>
     const content = storyId ? <StoryPage id={storyId} /> : list;
     return content;

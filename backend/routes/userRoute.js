@@ -7,6 +7,7 @@ Router.get('/', (req,res)=>{
         storyIdList: null,
         pageIdList:null,
         translationIdList: null,
+        favoriteStoryIdList:null,
         canAddToOwnStory: true,
         writerRating: 0,
         translatorRating: 0

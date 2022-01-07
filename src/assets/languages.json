@@ -1,5 +1,37 @@
 [
   {
+    "code": "en",
+    "name": "English"
+  },
+  {
+    "code": "es",
+    "name": "Spanish"
+  },
+  {
+    "code": "zh",
+    "name": "Chinese"
+  },
+  {
+    "code": "fr",
+    "name": "French"
+  },
+  {
+    "code": "de",
+    "name": "German"
+  },
+  {
+    "code": "ja",
+    "name": "Japanese"
+  },
+  {
+    "code": "it",
+    "name": "Italian"
+  },
+  {
+    "code": "ru",
+    "name": "Russian"
+  },
+  {
     "code": "ab",
     "name": "Abkhaz"
   },
@@ -112,10 +144,7 @@
     "name": "Chechen"
   },
  
-  {
-    "code": "zh",
-    "name": "Chinese"
-  },
+ 
   {
     "code": "cv",
     "name": "Chuvash"
@@ -153,10 +182,7 @@
     "code": "dz",
     "name": "Dzongkha"
   },
-  {
-    "code": "en",
-    "name": "English"
-  },
+ 
   {
     "code": "eo",
     "name": "Esperanto"
@@ -181,10 +207,7 @@
     "code": "fi",
     "name": "Finnish"
   },
-  {
-    "code": "fr",
-    "name": "French"
-  },
+
 
   {
     "code": "gl",
@@ -194,10 +217,7 @@
     "code": "ka",
     "name": "Georgian"
   },
-  {
-    "code": "de",
-    "name": "German"
-  },
+
   {
     "code": "el",
     "name": "Greek"
@@ -267,18 +287,12 @@
     "code": "is",
     "name": "Icelandic"
   },
-  {
-    "code": "it",
-    "name": "Italian"
-  },
+
   {
     "code": "iu",
     "name": "Inuktitut"
   },
-  {
-    "code": "ja",
-    "name": "Japanese"
-  },
+ 
   {
     "code": "jv",
     "name": "Javanese"
@@ -401,7 +415,7 @@
   },
   {
     "code": "mi",
-    "name": "MÄori"
+    "name": "Maori"
   },
   {
     "code": "mr",
@@ -512,10 +526,7 @@
     "code": "ro",
     "name": "Romanian"
   },
-  {
-    "code": "ru",
-    "name": "Russian"
-  },
+ 
   {
     "code": "sa",
     "name": "Sanskrit"
@@ -572,10 +583,7 @@
     "code": "st",
     "name": "Southern Sotho"
   },
-  {
-    "code": "es",
-    "name": "Spanish"
-  },
+ 
   {
     "code": "su",
     "name": "Sundanese"
