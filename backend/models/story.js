@@ -4,7 +4,7 @@ const storySchema = mongoose.Schema({
     title: String,
     description: String,
     language: String,
-    level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Native',
+    level: String,
     authorId: String,
     rating: Number,
     updatedAt: Date,

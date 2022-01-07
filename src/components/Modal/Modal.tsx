@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components'
 
 type Props = {
-    toggleModal: () => void;
+    closeModal: () => void;
 }
 
 const Overlay = styled.div`
@@ -17,8 +17,8 @@ const Overlay = styled.div`
   justify-content: center;
 `;
 
-export const Modal: React.FC<Props> = ({ toggleModal, children }) => {
-    return ReactDOM.createPortal(<Overlay onClick={toggleModal}>
+export const Modal: React.FC<Props> = ({ closeModal, children }) => {
+    return ReactDOM.createPortal(<Overlay onClick={closeModal}>
         <div onClick={e => e.stopPropagation()}>
             {children}
         </div>

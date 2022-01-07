@@ -13,6 +13,7 @@ const StoryList: React.FC<Props> = ({stories, storyClicked, handleSortBy, handle
     console.log('[StoryList] render');
 
     return <>
+    
         <SortBy
             options={[
                 { text: 'Rating', value: 'rating' },
@@ -20,8 +21,8 @@ const StoryList: React.FC<Props> = ({stories, storyClicked, handleSortBy, handle
             ]}
             selectChanged={(e) => handleSortBy(e.target.value)}
         />
-        <img style={{ width: '5%', height: '5%' }} src={require(`../assets/uparrow.png`)} alt="uparrow" onClick={() => handleSortDirection(1)} />
-        <img style={{ width: '5%', height: '5%' }} src={require(`../assets/downarrow.png`)} alt="downarrow" onClick={() => handleSortDirection(-1)} />
+        <img style={{ width: '20px', height: '20px' }} src={require(`../assets/uparrow.png`)} alt="uparrow" onClick={() => handleSortDirection(1)} />
+        <img style={{ width: '20px', height: '20px' }} src={require(`../assets/downarrow.png`)} alt="downarrow" onClick={() => handleSortDirection(-1)} />
         {stories.map(story =>
             <StoryCard
                 story={story}

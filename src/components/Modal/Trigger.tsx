@@ -1,11 +1,11 @@
 type Props={
     text:string,
-    toggleModal:()=>void
+    onClick:()=>void
 }
 
-const Trigger = ({ text,  toggleModal }:Props) => {
+const Trigger = ({ text,  onClick }:Props) => {
   return (
-    <button onClick={toggleModal}>{text}</button>
+    <button onClick={onClick}>{text}</button>
   );
 };
 export default Trigger;

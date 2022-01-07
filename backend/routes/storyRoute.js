@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
         language: req.body.language,
         level: req.body.targetLevel,
         authorId: '?',
-        overallRating: 0,
+        rating: 0,
         updatedAt: new Date(),
         openEnded: false,
         pages: null,

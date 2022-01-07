@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import StoryPage from "./StoryPage";
 import ModalWrapper from "../components/modal/ModalWrapper";
-import { NewStoryForm } from "../components/forms/NewStoryForm";
 import Trigger from "../components/modal/Trigger";
 import StoryList from "../components/StoryList";
 import { StorySummary } from "../components/StorySummary";
+import { FormTypes } from "../components/forms/FormTypes";
 
 const Home: React.FC = () => {
     console.log('[HOME] render')
@@ -13,27 +13,21 @@ const Home: React.FC = () => {
     const [stories, setStories] = useState<StorySummary[]>([]);
     const [sortBy, setSortBy] = useState<string>('rating');
     const [sortDirection, setSortDirection] = useState<number>(1);
-    const [showModal, setShowModal] = useState(false);
+    const [modalForm, setModalForm] = useState<FormTypes>('');
 
     const getSortedList = useCallback(() => {
         axios.get<StorySummary[]>(`${process.env.REACT_APP_LOCAL_HOST}stories/${sortBy}/${sortDirection}`)
-        .then( result => setStories(result.data));
-    }, [sortBy, sortDirection]);
+            .then(result => setStories(result.data));
+    }, [stories]);
 
     useEffect(() => {
         getSortedList();
-    }, []);
+    }, [sortBy, sortDirection]);
 
     const storyClicked = (storyId: string) => {
         setStoryId(storyId);
     }
-
-    const toggleModal = () => {
-        setShowModal(prevState => !prevState);
-    }
-
     const createNewStory = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
         const form = event.currentTarget;
         const story = {
             title: form.titel.value,
@@ -42,15 +36,26 @@ const Home: React.FC = () => {
             targetLevel: form.level.value,
         }
         axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/`, story).then(() => getSortedList());
-        toggleModal();
+        setModalForm('');
+    }
+    const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        switch (modalForm) {
+            case 'filter':
+                break;
+            case 'newStory': createNewStory(event);
+                break;
+            default: return null;
+        }
     }
 
     const list = <>
-        <Trigger text={'Create new story'} toggleModal={toggleModal} />
+        <Trigger text={'Create new story'} onClick={() => setModalForm('newStory')} />
+        <Trigger text={'Filter'} onClick={() => setModalForm('filter')} />
         <ModalWrapper
-            visibility={showModal}
-            toggleModal={toggleModal}>
-            <NewStoryForm onSubmit={createNewStory} />
+            form={modalForm}
+            onSubmit={handleFormSubmit}
+            onClose={() => setModalForm('')}>
         </ModalWrapper>
         <br></br>
         <StoryList
