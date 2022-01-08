@@ -11,7 +11,7 @@ router.post('/modifiedList', async (req, res) => {
         //query['authorId'] = favorites
     }
     if(req.body.languages.length>0) query['language']=req.body.languages;
-    if(req.body.level.length>0)query['level']= req.body.level;
+    if(req.body.levels.length>0)query['level']= req.body.levels;
     if(req.body.openEnded!=='both')query['openEnded']=req.body.openEnded;
     
     const sortBy = req.body.sortBy

@@ -1,18 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import StoryPage from "./StoryPage";
-import ModalWrapper from "../components/modal/ModalWrapper";
 import Trigger from "../components/modal/Trigger";
 import StoryList from "../components/StoryList";
 import { StorySummary } from "../components/StorySummary";
-import { FormTypes } from "../components/forms/FormTypes";
+import { Filter } from "../components/forms/Filter";
+import { NewStoryForm } from "../components/forms/NewStoryForm";
+import { Modal } from "../components/modal/Modal";
 
 type ListModifications = {
     sortBy: string,
     sortDirection: number,
     from: string,
     languages: string[],
-    level: string[],
+    levels: string[],
     openEnded: string;
 }
 
@@ -23,21 +24,26 @@ const Home: React.FC = () => {
         sortDirection: 1,
         from: 'all',
         languages: [],
-        level: [],
+        levels: [],
         openEnded: 'both'
     });
     const [storyId, setStoryId] = useState<string>();
     const [stories, setStories] = useState<StorySummary[]>([]);
-    const [modalForm, setModalForm] = useState<FormTypes>('');
+    const [showModal, setShowModal] = useState(false);
+    const [updatedFilter, setUpdatedFilter]=useState(false);
+    const [form, setForm] = useState('');
 
     const getSortedList = useCallback(() => {
         axios.post<StorySummary[]>(`${process.env.REACT_APP_LOCAL_HOST}stories/modifiedList`, listModifications)
-            .then(result => setStories(result.data));
-    }, [stories]);
+            .then(result => {
+                setStories(result.data);
+                setShowModal(false);
+            });
+    }, [updatedFilter]);
 
     useEffect(() => {
         getSortedList();
-    }, [listModifications]);
+    }, [getSortedList]);
 
     const storyClicked = (storyId: string) => {
         axios.delete(`${process.env.REACT_APP_LOCAL_HOST}stories/${storyId}`).then(() => getSortedList());
@@ -55,41 +61,40 @@ const Home: React.FC = () => {
         }
         axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/`, story).then(() => {
             getSortedList();
-            setModalForm('');
         });
     }
 
-    const handleFilter = (event: React.FormEvent<HTMLFormElement>, lvls: string[], langs: string[]) => {
-        event.preventDefault();
-        const form = event.currentTarget;
-        console.log(lvls);
-        console.log(langs);
-        setListModifications(prevState => ({
-            ...prevState,
-            from: form.from.value,
-            languages: langs,
-            level: lvls,
-            openEnded: form.openEnded.value
-        }));
-        getSortedList();
-        setModalForm('');
+    const handleSortDirection = (direction:number) => {
+        setListModifications(prevState => ({ ...prevState, sortDirection: direction }));
+        setUpdatedFilter(prevState => !prevState);
+    }
+
+    const handleSortBy = (property:string) => {
+        setListModifications(prevState => ({ ...prevState, sortBy: property }));
+        setUpdatedFilter(prevState => !prevState);
     }
 
     const list = <>
-        <Trigger text={'Create new story'} onClick={() => setModalForm('newStory')} />
-        <Trigger text={'Filter'} onClick={() => setModalForm('filter')} />
-        <ModalWrapper
-            form={modalForm}
-            onNewStory={handleFormSubmit}
-            onFilter={handleFilter}
-            onClose={() => setModalForm('')}>
-        </ModalWrapper>
+        <Trigger text={'Create new story'} onClick={() => { setForm('newStory'); setShowModal(true); }} />
+        <Trigger text={'Filter'} onClick={() => { setForm('filter'); setShowModal(true); }} />
+        <Modal showModal={showModal} closeModal={() => setShowModal(prevState => !prevState)} >
+            {form === 'newStory' ? <NewStoryForm
+                onCloseForm={() => setShowModal(prevState => !prevState)}
+                onSubmit={handleFormSubmit} /> : null}
+            {form === 'filter' ? <Filter
+                filters={listModifications}
+                changeFilter={(changes) => setListModifications(prevState => ({ ...prevState, ...changes }))}
+                onCloseForm={() => setShowModal(prevState => !prevState)}
+                onSubmit={()=>setUpdatedFilter(prevState => !prevState)} /> : null}
+        </Modal>
         <br></br>
+        {stories.length>0?
         <StoryList
             stories={stories}
             storyClicked={storyClicked}
-            handleSortDirection={(e) => setListModifications(prevState => ({ ...prevState, sortDirection: e }))}
-            handleSortBy={(e) => setListModifications(prevState => ({ ...prevState, sortBy: e }))} />
+            handleSortDirection={handleSortDirection}
+            handleSortBy={handleSortBy} />
+            :<div>loading</div>}
     </>
     const content = storyId ? <StoryPage id={storyId} /> : list;
     return content;
