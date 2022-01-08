@@ -2,7 +2,7 @@ import { levels } from '../../models/LanguageLevel';
 import data from '../../assets/languages.json';
 import './Form.css'
 
-type Filters = {
+export type FilterTypes = {
     from: string,
     languages: string[],
     levels: string[],
@@ -10,13 +10,13 @@ type Filters = {
 }
 
 type Props = {
-    onSubmit: () => void;
+    onApply: () => void;
     onCloseForm: () => void;
-    filters: Filters;
-    changeFilter: (change: Filters) => void;
+    filters: FilterTypes;
+    changeFilter: (change: FilterTypes) => void;
 }
 
-export const Filter: React.FC<Props> = ({ filters, changeFilter, onSubmit, onCloseForm }) => {
+export const Filter: React.FC<Props> = ({ filters, changeFilter, onApply, onCloseForm }) => {
 
     const handleChange = (filter: 'levels' | 'languages', value: string) => {
         const originalValues = [...filters[filter]];
@@ -72,7 +72,7 @@ export const Filter: React.FC<Props> = ({ filters, changeFilter, onSubmit, onClo
 
             <div className='button-container'>
                 <button onClick={onCloseForm}>Cancel</button>
-                <button onClick={onSubmit}>Submit</button>
+                <button onClick={onApply}>Apply</button>
             </div>
         </div>
     </>

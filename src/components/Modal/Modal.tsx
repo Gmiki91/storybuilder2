@@ -2,7 +2,6 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components'
 
 type Props = {
-    showModal: boolean;
     closeModal: () => void;
 }
 
@@ -18,8 +17,7 @@ const Overlay = styled.div`
   justify-content: center;
 `;
 
-export const Modal: React.FC<Props> = ({ showModal, closeModal, children }) => {
-    if (!showModal) return null;
+export const Modal: React.FC<Props> = ({ closeModal, children }) => {
     return ReactDOM.createPortal(<Overlay onClick={closeModal}>
         <div onClick={e => e.stopPropagation()}>
             {children}
