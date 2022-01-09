@@ -5,11 +5,13 @@ const app  = express();
 const port = 3030;
 const storyRoute = require('./routes/storyRoute');
 const userRoute = require('./routes/userRoute');
+const pageRoute = require('./routes/pageRoute');
 
 app.use(cors());
 app.use(express.json());
 app.use('/api/stories', storyRoute);
 app.use('/api/users', userRoute);
+app.use('/api/pages', pageRoute);
 
 app.listen(port,()=>console.log(`Express server listening on port ${port}`))
 mongoose.connect(

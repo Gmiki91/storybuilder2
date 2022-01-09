@@ -18,7 +18,6 @@ router.post('/modifiedList', async (req, res) => {
     const sortDirection = req.body.sortDirection;
     const sortObject = {};
     sortObject[sortBy] = sortDirection;
-    console.log(query);
     const result = await Story
         .find(query)
         .sort(sortObject)
@@ -36,14 +35,25 @@ router.post('/', async (req, res) => {
         rating: 0,
         updatedAt: new Date(),
         openEnded: false,
-        pages: null,
-        pendingPages: null
+        pageIds: [],
+        pendingPageIds: null
     });
     await story.save();
     res.send('story created');
 })
 
-router.delete('/:id', async (req, res) => {
+router.post('/addPage', async (req, res) => {
+    const story = await Story.findById(req.body.storyId);
+    story.pageIds.push(req.body.pageId);
+    await story.save();
+    res.status(200).send('saved');
+})
+router.get('/:id', async (req, res) => {
+    const story = await Story.findById(req.params.id);
+    res.status(200).json(story);
+
+})
+router.delete('/:id',  (req, res) => {
     Story.findByIdAndDelete(req.params.id).then(() => res.send('deleted'));
 })
 

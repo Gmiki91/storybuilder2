@@ -9,11 +9,8 @@ const storySchema = mongoose.Schema({
     rating: Number,
     updatedAt: Date,
     openEnded: Boolean,
-    pages: [{
-        pageNumber: Number,
-        pageId: String
-    }],
-    pendingPages: [String]
+    pageIds: [String],
+    pendingPageIds: [String]
 }, { collection: 'stories' });
 
 module.exports = mongoose.model('Story', storySchema);

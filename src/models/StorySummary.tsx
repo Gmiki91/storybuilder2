@@ -1,4 +1,4 @@
-import { Level } from "../models/LanguageLevel";
+import { Level } from "./LanguageLevel";
 
 export type StorySummary = {
     _id: string;

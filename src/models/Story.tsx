@@ -1,10 +1,5 @@
 import {Level} from "./LanguageLevel"
 
-type Page = {
-    number: number;
-    id: string;
-}
-
 export type Story = {
     _id?:string;
     title: string;
@@ -15,6 +10,6 @@ export type Story = {
     rating: number;
     updatedAt: Date;
     openForSubmissions: boolean;
-    pages: Page[];
+    pageIds: string[];
     pendingPageIds: string[]
 }

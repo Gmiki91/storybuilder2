@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { StoryList } from "../components/StoryList";
+import { StorySummary } from "../models/StorySummary";
+import { Filter } from "../components/forms/Filter";
+import { NewStoryForm } from "../components/forms/NewStoryForm";
+import { FormTypes } from "../components/forms/FormTypes";
+import { Trigger } from "../components/modal/Trigger";
+import { Modal } from "../components/modal/Modal";
 import StoryPage from "./StoryPage";
-import StoryList from "../components/StoryList";
-import { StorySummary } from "../components/StorySummary";
-import ModalWrapper from "../components/modal/ModalWrapper";
 
 type ListModifications = {
     sortBy: string,
@@ -27,11 +31,13 @@ const Home: React.FC = () => {
     const [storyId, setStoryId] = useState<string>();
     const [stories, setStories] = useState<StorySummary[]>([]);
     const [filters, applyFilters] = useState(false);
+    const [form, setForm] = useState<FormTypes>('');
 
     const getSortedList = useCallback(() => {
         axios.post<StorySummary[]>(`${process.env.REACT_APP_LOCAL_HOST}stories/modifiedList`, listModifications)
             .then(result => {
                 setStories(result.data);
+                setForm('');
             });
     }, [filters]);
 
@@ -40,8 +46,8 @@ const Home: React.FC = () => {
     }, [getSortedList]);
 
     const storyClicked = (storyId: string) => {
-        axios.delete(`${process.env.REACT_APP_LOCAL_HOST}stories/${storyId}`).then(() => getSortedList());
-        // setStoryId(storyId);
+        //axios.delete(`${process.env.REACT_APP_LOCAL_HOST}stories/${storyId}`).then(() => getSortedList());
+        setStoryId(storyId);
     }
 
     const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -68,14 +74,32 @@ const Home: React.FC = () => {
         applyFilters(prevState => !prevState);
     }
 
-    const list = <>
-        <ModalWrapper
-            onNewStorySubmit={handleFormSubmit}
-            filters={listModifications}
-            applyFilters={()=>applyFilters(prevState => !prevState)}
-            changedFilters={(changes) => setListModifications(prevState => ({ ...prevState, ...changes }))}>
-        </ModalWrapper>
+    const getForm = () => {
+        switch (form) {
+            case 'filter':
+                return <Filter
+                    onCloseForm={() => setForm('')}
+                    onApply={() => applyFilters(prevState => !prevState)}
+                    filters={listModifications}
+                    changeFilter={(changes) => setListModifications(prevState => ({ ...prevState, ...changes }))} />
+            case 'newStory':
+                return <NewStoryForm
+                    onCloseForm={() => setForm('')}
+                    onSubmit={handleFormSubmit} />
+            default:
+                return null;
+        }
+    }
 
+    const modalChild = getForm();
+
+    const list = <>
+        <Trigger text={'Create new story'} onClick={() => { setForm('newStory') }} />
+        <Trigger text={'Filter'} onClick={() => { setForm('filter') }} />
+        {form !== '' ?
+            <Modal closeModal={() => setForm('')}>
+                {modalChild}
+            </Modal> : null}
         <br></br>
         {stories.length > 0 ?
             <StoryList

@@ -7,12 +7,9 @@ type Props = {
     selectChanged:(event:React.ChangeEvent<HTMLSelectElement>)=>void,
 }
 
-export const SortBy: React.FC<Props> = ({ options, selectChanged }) => {
-    const optionList = options.map(option => <option key={option.value} value={option.value}>{option.text}</option>);
-    return <>
+export const SortBy: React.FC<Props> = ({ options, selectChanged }) => <>
     <label>Sort by</label>
         <select onChange={selectChanged}>
-            {optionList}
+            {options.map(option => <option key={option.value} value={option.value}>{option.text}</option>)}
         </select>
     </>
-}

@@ -3,9 +3,8 @@ type Props={
     onClick:()=>void
 }
 
-const Trigger = ({ text,  onClick }:Props) => {
+export const Trigger = ({ text,  onClick }:Props) => {
   return (
     <button onClick={onClick}>{text}</button>
   );
 };
-export default Trigger;
