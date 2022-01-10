@@ -4,14 +4,15 @@ const router = express.Router();
 const Page = require('../models/page');
 
 router.get('/:ids',async(req,res)=>{
-    const pages = await Page.find({id:{$in:req.params.ids}});
+    const ids = req.params.ids.split(',');
+    const pages = await Page.find({_id:{$in:ids}});
     res.status(200).json(pages);
 });
 
 router.post('/', async(req, res)=>{
     const page = Page({
         text: req.body.text,
-        level: req.body.value,
+        level: req.body.level,
         language:req.body.language,
         authorId:req.body.authorId,
         rating:req.body.rating,

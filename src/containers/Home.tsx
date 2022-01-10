@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { StoryList } from "../components/StoryList";
 import { StorySummary } from "../models/StorySummary";
 import { Filter } from "../components/forms/Filter";
@@ -7,7 +8,6 @@ import { NewStoryForm } from "../components/forms/NewStoryForm";
 import { FormTypes } from "../components/forms/FormTypes";
 import { Trigger } from "../components/modal/Trigger";
 import { Modal } from "../components/modal/Modal";
-import StoryPage from "./StoryPage";
 
 type ListModifications = {
     sortBy: string,
@@ -19,6 +19,7 @@ type ListModifications = {
 }
 
 const Home: React.FC = () => {
+    const navigate = useNavigate();
     console.log('[HOME] render')
     const [listModifications, setListModifications] = useState<ListModifications>({
         sortBy: 'rating',
@@ -28,13 +29,12 @@ const Home: React.FC = () => {
         levels: [],
         openEnded: 'both'
     });
-    const [storyId, setStoryId] = useState<string>();
     const [stories, setStories] = useState<StorySummary[]>([]);
     const [filters, applyFilters] = useState(false);
     const [form, setForm] = useState<FormTypes>('');
 
     const getSortedList = useCallback(() => {
-        axios.post<StorySummary[]>(`${process.env.REACT_APP_LOCAL_HOST}stories/modifiedList`, listModifications)
+        axios.post<StorySummary[]>(`${process.env.REACT_APP_LOCAL_HOST}stories/all`, listModifications)
             .then(result => {
                 setStories(result.data);
                 setForm('');
@@ -47,7 +47,7 @@ const Home: React.FC = () => {
 
     const storyClicked = (storyId: string) => {
         //axios.delete(`${process.env.REACT_APP_LOCAL_HOST}stories/${storyId}`).then(() => getSortedList());
-        setStoryId(storyId);
+        navigate(`/${storyId}`)
     }
 
     const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -93,7 +93,7 @@ const Home: React.FC = () => {
 
     const modalChild = getForm();
 
-    const list = <>
+    return <>
         <Trigger text={'Create new story'} onClick={() => { setForm('newStory') }} />
         <Trigger text={'Filter'} onClick={() => { setForm('filter') }} />
         {form !== '' ?
@@ -109,7 +109,5 @@ const Home: React.FC = () => {
                 handleSortBy={handleSortBy} />
             : <div>loading</div>}
     </>
-    const content = storyId ? <StoryPage id={storyId} /> : list;
-    return content;
 };
 export default Home;

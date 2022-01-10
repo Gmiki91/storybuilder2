@@ -3,7 +3,7 @@ const router = express.Router();
 
 const Story = require('../models/story');
 
-router.post('/modifiedList', async (req, res) => {
+router.post('/all', async (req, res) => {
     const query ={};
     if(req.body.from==='own'){
         //query['authorId'] = userId

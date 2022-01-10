@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useCallback, useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { FormTypes } from "../components/forms/FormTypes";
 import { PageForm } from "../components/forms/PageForm";
 import { Modal } from "../components/modal/Modal";
@@ -7,15 +8,14 @@ import { PageCard } from "../components/PageCard";
 import { Page } from "../models/Page";
 import { Story } from "../models/Story";
 
-
-
-const StoryPage = (props: { id: string }) => {
+const StoryPage = () => {
+  const {storyId} = useParams();
   const [story, setStory] = useState<Story>();
   const [pages, setPages] = useState<Page[]>([]);
   const [form, setForm] = useState<FormTypes>('');
 
   const init = useCallback(async () => {
-    const story = await axios.get<Story>(`${process.env.REACT_APP_LOCAL_HOST}stories/${props.id}`).then(result => result.data);
+    const story = await axios.get<Story>(`${process.env.REACT_APP_LOCAL_HOST}stories/${storyId}`).then(result => result.data);
     const pageIds = story.pageIds.join(',');
     if (pageIds.length > 0) {
       const pages = await axios.get<Page[]>(`${process.env.REACT_APP_LOCAL_HOST}pages/${pageIds}`).then(result => result.data);
@@ -23,7 +23,7 @@ const StoryPage = (props: { id: string }) => {
     }
     setStory(story);
     setForm('');
-  }, [props.id]);
+  }, [storyId]);
 
   useEffect(() => {
     init();
@@ -42,7 +42,7 @@ const StoryPage = (props: { id: string }) => {
       translations: []
     }
     const pageId = await axios.post(`${process.env.REACT_APP_LOCAL_HOST}pages/`, page).then((result) => result.data)
-    const obj = { pageId: pageId, storyId: story?._id }
+    const obj = { pageId: pageId, storyId: story!._id }
     axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/addPage`, obj).then(() => init());
   }
 
@@ -54,7 +54,9 @@ const StoryPage = (props: { id: string }) => {
       <Modal closeModal={() => setForm('')}>
         <PageForm onSubmit={(e) => addPage(e)} onClose={() => setForm('')} />
       </Modal> : null}
+      <div style={{display: 'flex', flexDirection:'column', alignItems: 'center'}}>
     {pageList}
+    </div>
     <br></br>
     <button onClick={() => setForm('newPage')}>Add Page</button>
   </>

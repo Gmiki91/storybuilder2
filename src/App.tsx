@@ -2,6 +2,7 @@ import './App.css';
 import { Routes, Route, NavLink, BrowserRouter } from "react-router-dom";
 import Home from './containers/Home';
 import Stats from './containers/Stats';
+import StoryPage from './containers/StoryPage';
 
 const App = () => {
   return (
@@ -11,6 +12,7 @@ const App = () => {
         <NavLink to='/stats'>Stats</NavLink>
         <Routes>
           <Route path='/' element={<Home />} />
+          <Route path='/:storyId' element={<StoryPage />} />
           <Route path='/stats' element={<Stats />} />
         </Routes>
       </BrowserRouter>
