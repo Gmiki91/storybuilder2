@@ -40,9 +40,8 @@ const StoryPage = () => {
       language: story!.language,
       authorId: story!.authorId,
       rating: [],
-      status: 'Pending',
-      translations: []
-    }
+      status: 'Pending'
+        }
     const pageId = await axios.post(`${process.env.REACT_APP_LOCAL_HOST}pages/`, page).then((result) => result.data)
     const body = { pageId: pageId, storyId: story!._id }
     axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/addPage`, body).then(() =>{

@@ -6,7 +6,6 @@ Router.get('/', (req,res)=>{
         languages: null,
         storyIdList: null,
         pageIdList:null,
-        translationIdList: null,
         favoriteStoryIdList:null,
         canAddToOwnStory: true,
         writerRating: 0,

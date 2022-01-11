@@ -25,9 +25,7 @@ export const PageCard:React.FC<Props> = ({ page,onRateLevel,onRateText }) => {
       <div className="card-rate">
         <button onClick={()=>onRateText(1)}>Rate</button>
       </div>
-      <div className="card-tranlations">
-        <button>Translations</button>
-      </div>
+     
     </div>
   </>
 }

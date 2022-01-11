@@ -7,7 +7,6 @@ const pageSchema = mongoose.Schema({
     authorId: String,
     ratings: [{ userId: String, rate: Number }],
     status: 'Pending' | 'Confirmed',
-    translations: []
 }, { collection: 'pages' });
 
 module.exports = mongoose.model('Page', pageSchema);

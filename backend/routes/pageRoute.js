@@ -22,7 +22,6 @@ router.post('/', async (req, res) => {
         authorId: req.body.authorId,
         ratings: req.body.rating,
         status: req.body.status,
-        translations: req.body.translations
     });
     const obj = await page.save();
     res.send(obj._id)

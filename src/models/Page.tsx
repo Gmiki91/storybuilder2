@@ -5,6 +5,5 @@ export type Page = {
     level: string,
     authorId: string,
     rating: [{ userId: string, rate: number }],
-    status: 'Pending' | 'Confirmed',
-    translationIds: string[]
+    status: 'Pending' | 'Confirmed'
 }
