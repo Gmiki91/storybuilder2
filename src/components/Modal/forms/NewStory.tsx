@@ -1,13 +1,13 @@
 import './Form.css';
-import data from '../../assets/languages.json';
-import { levels } from '../../models/LanguageLevel';
+import data from '../../../assets/languages.json';
+import { levels } from '../../../models/LanguageLevel';
 
 type Props = {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onCloseForm: () => void;
 }
 
-export const NewStoryForm: React.FC<Props> = ({ onSubmit, onCloseForm }) => {
+export const NewStory: React.FC<Props> = ({ onSubmit, onCloseForm }) => {
   return (
     <form className="form-box" onSubmit={onSubmit}>
 

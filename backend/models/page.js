@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const pageSchema = mongoose.Schema({
     text: String,
     language: String,
-    level: String,
+    levels:  [{ userId: String, rate: Number }],
     authorId: String,
-    rating: [{ userId: String, rate: Number }],
+    ratings: [{ userId: String, rate: Number }],
     status: 'Pending' | 'Confirmed',
     translations: []
 }, { collection: 'pages' });

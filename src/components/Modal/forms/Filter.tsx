@@ -1,5 +1,5 @@
-import { levels } from '../../models/LanguageLevel';
-import data from '../../assets/languages.json';
+import { levels } from '../../../models/LanguageLevel';
+import data from '../../../assets/languages.json';
 import './Form.css'
 
 export type FilterTypes = {

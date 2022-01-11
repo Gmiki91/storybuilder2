@@ -23,7 +23,7 @@
 }
 
 .form-box button{
-    width:33%;
+    width:43%;
     color: rgb(255, 136, 0);
     border-radius:15px;
     cursor: pointer;
@@ -49,3 +49,4 @@
     align-items: center;
     justify-content: space-around;
 }
+

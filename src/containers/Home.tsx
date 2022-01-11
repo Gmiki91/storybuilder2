@@ -3,9 +3,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StoryList } from "../components/StoryList";
 import { StorySummary } from "../models/StorySummary";
-import { Filter } from "../components/forms/Filter";
-import { NewStoryForm } from "../components/forms/NewStoryForm";
-import { FormTypes } from "../components/forms/FormTypes";
+import { Filter } from "../components/modal/forms/Filter";
+import { NewStory } from "../components/modal/forms/NewStory";
+import { FormTypes } from "../components/modal/forms/FormTypes";
 import { Trigger } from "../components/modal/Trigger";
 import { Modal } from "../components/modal/Modal";
 
@@ -31,13 +31,13 @@ const Home: React.FC = () => {
     });
     const [stories, setStories] = useState<StorySummary[]>([]);
     const [filters, applyFilters] = useState(false);
-    const [form, setForm] = useState<FormTypes>('');
+    const [formType, setFormType] = useState<FormTypes>('');
 
     const getSortedList = useCallback(() => {
         axios.post<StorySummary[]>(`${process.env.REACT_APP_LOCAL_HOST}stories/all`, listModifications)
             .then(result => {
                 setStories(result.data);
-                setForm('');
+                setFormType('');
             });
     }, [filters]);
 
@@ -75,30 +75,30 @@ const Home: React.FC = () => {
     }
 
     const getForm = () => {
-        switch (form) {
+        switch (formType) {
             case 'filter':
                 return <Filter
-                    onCloseForm={() => setForm('')}
+                    onCloseForm={() => setFormType('')}
                     onApply={() => applyFilters(prevState => !prevState)}
                     filters={listModifications}
                     changeFilter={(changes) => setListModifications(prevState => ({ ...prevState, ...changes }))} />
             case 'newStory':
-                return <NewStoryForm
-                    onCloseForm={() => setForm('')}
+                return <NewStory
+                    onCloseForm={() => setFormType('')}
                     onSubmit={handleFormSubmit} />
             default:
                 return null;
         }
     }
 
-    const modalChild = getForm();
+    const form = getForm();
 
     return <>
-        <Trigger text={'Create new story'} onClick={() => { setForm('newStory') }} />
-        <Trigger text={'Filter'} onClick={() => { setForm('filter') }} />
-        {form !== '' ?
-            <Modal closeModal={() => setForm('')}>
-                {modalChild}
+        <Trigger text={'Create new story'} onClick={() => { setFormType('newStory') }} />
+        <Trigger text={'Filter'} onClick={() => { setFormType('filter') }} />
+        {formType !== '' ?
+            <Modal closeModal={() => setFormType('')}>
+                {form}
             </Modal> : null}
         <br></br>
         {stories.length > 0 ?

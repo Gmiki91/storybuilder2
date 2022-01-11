@@ -1,26 +1,29 @@
 import './PageCard.css'
 import { Page } from "../models/Page"
 type Props = {
-  page:Page
+  page:Page;
+  onRateLevel : ()=>void;
+  onRateText : (rate:number)=>void;
 }
-export const PageCard:React.FC<Props> = ({ page }) => {
+export const PageCard:React.FC<Props> = ({ page,onRateLevel,onRateText }) => {
   const getColor = () => {
     switch (page.level) {
       case 'A': return '#8fffba';
+      case 'A+':return '#5fd48c';
       case 'B': return '#fffc80';
+      case 'B+': return '#ffba3b';
       case 'C': return '#ff8080';
       case 'N': return '#d6d6d6';
     }
   }
   const backgroundColor = getColor();
-  console.log(backgroundColor);
 
   return <>
     <div className="card">
-      <div className="card-level" style={{ backgroundColor: backgroundColor }}>{page.level}</div>
+      <div className="card-level" style={{ backgroundColor: backgroundColor }} onClick={onRateLevel}>{page.level}</div>
       <h2 className="card-text">{page.text}</h2>
       <div className="card-rate">
-        <button>Rate</button>
+        <button onClick={()=>onRateText(1)}>Rate</button>
       </div>
       <div className="card-tranlations">
         <button>Translations</button>

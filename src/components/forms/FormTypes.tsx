@@ -1,1 +1,0 @@
-export type FormTypes = 'filter' | 'newStory' | 'newPage' | '';

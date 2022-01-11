@@ -1,19 +1,22 @@
 import axios from "axios";
 import { useCallback, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { FormTypes } from "../components/forms/FormTypes";
-import { PageForm } from "../components/forms/PageForm";
+import { FormTypes } from "../components/modal/forms/FormTypes";
+import { NewPage } from "../components/modal/forms/NewPage";
+import { RateLevel } from "../components/modal/forms/RateLevel";
 import { Modal } from "../components/modal/Modal";
 import { PageCard } from "../components/PageCard";
 import { Page } from "../models/Page";
 import { Story } from "../models/Story";
 
 const StoryPage = () => {
-  const {storyId} = useParams();
+  const { storyId } = useParams();
   const [story, setStory] = useState<Story>();
   const [pages, setPages] = useState<Page[]>([]);
-  const [form, setForm] = useState<FormTypes>('');
+  const [currentPageIndex, setCurrentPageIndex] = useState(-1);
+  const [formType, setFormType] = useState<FormTypes>('');
 
+  //console.log('[StoryPage] renders')
   const init = useCallback(async () => {
     const story = await axios.get<Story>(`${process.env.REACT_APP_LOCAL_HOST}stories/${storyId}`).then(result => result.data);
     const pageIds = story.pageIds.join(',');
@@ -22,7 +25,6 @@ const StoryPage = () => {
       setPages(pages);
     }
     setStory(story);
-    setForm('');
   }, [storyId]);
 
   useEffect(() => {
@@ -42,23 +44,56 @@ const StoryPage = () => {
       translations: []
     }
     const pageId = await axios.post(`${process.env.REACT_APP_LOCAL_HOST}pages/`, page).then((result) => result.data)
-    const obj = { pageId: pageId, storyId: story!._id }
-    axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/addPage`, obj).then(() => init());
+    const body = { pageId: pageId, storyId: story!._id }
+    axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/addPage`, body).then(() =>{
+      init();
+      setFormType('');
+    });
+
   }
 
-  const pageList = pages.length > 0 ? pages.map(page => <PageCard key={page._id} page={page} />) : <div>No pages yet </div>
+  const handleRateText =(rate:number)=>{
+    //await axios.put(pages/rate)
+  }
 
+  const handleRateLevel=(vote:string)=>{
+    const body = {vote:vote, pageId:pages[currentPageIndex]._id};
+    axios.put(`${process.env.REACT_APP_LOCAL_HOST}pages/rate`, body).then(()=>{
+      init();
+      setCurrentPageIndex(-1)
+    });
+  }
+
+  const handleCloseModal=()=>{
+    if (formType === 'newPage') setFormType('');
+    if (currentPageIndex>-1) setCurrentPageIndex(-1);
+  }
+
+  const pageList = pages.length > 0 ? pages.map((page, i) => <PageCard
+    key={page._id}
+    page={page}
+    onRateLevel={() => setCurrentPageIndex(i)}
+    onRateText={handleRateText}
+  />) : <div>No pages yet </div>
+
+  const getForm = () => {
+    if (formType === 'newPage') return <NewPage onSubmit={(e) => addPage(e)} onClose={() => setFormType('')} />
+    if ( currentPageIndex>-1) return <RateLevel level={pages[currentPageIndex].level} onSubmit={handleRateLevel} onClose={() => setCurrentPageIndex(-1)} />
+    return null;
+  }
+
+  const form = getForm();
   return story ? <>
     <h1>{story.title}</h1>
-    {form !== '' ?
-      <Modal closeModal={() => setForm('')}>
-        <PageForm onSubmit={(e) => addPage(e)} onClose={() => setForm('')} />
+    {formType !== '' || currentPageIndex>-1 ?
+      <Modal closeModal={handleCloseModal}>
+        {form}
       </Modal> : null}
-      <div style={{display: 'flex', flexDirection:'column', alignItems: 'center'}}>
-    {pageList}
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {pageList}
     </div>
     <br></br>
-    <button onClick={() => setForm('newPage')}>Add Page</button>
+    <button onClick={() => setFormType('newPage')}>Add Page</button>
   </>
     : <div>loading</div>
 }
