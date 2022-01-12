@@ -23,7 +23,8 @@ export const PageCard:React.FC<Props> = ({ page,onRateLevel,onRateText }) => {
       <div className="card-level" style={{ backgroundColor: backgroundColor }} onClick={onRateLevel}>{page.level}</div>
       <h2 className="card-text">{page.text}</h2>
       <div className="card-rate">
-        <button onClick={()=>onRateText(1)}>Rate</button>
+        <button onClick={()=>onRateText(1)}>Great</button>
+        <button onClick={()=>onRateText(-1)}>Awful</button>
       </div>
      
     </div>

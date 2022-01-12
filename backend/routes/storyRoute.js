@@ -53,6 +53,12 @@ router.get('/:id', async (req, res) => {
     res.status(200).json(story);
 
 })
+router.put('/rate',async(req, res)=>{
+    const story = await Story.findById(req.body.storyId);
+    story.rating+=req.body.rate;
+    await story.save();
+    res.status(200).send('ok');
+})
 router.delete('/:id',  (req, res) => {
     Story.findByIdAndDelete(req.params.id).then(() => res.send('deleted'));
 })

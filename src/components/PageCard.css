@@ -29,8 +29,10 @@
 }
 
 .card-rate {
-    grid-row: 2/2;
-    justify-self: center;
+    justify-self: baseline;
+} 
+.card-rate button{
+    margin:5px;
 } 
 
 .card-text {
@@ -40,10 +42,6 @@
   overflow-wrap: break-word;
 }
 
-.card-tranlations {
-    grid-row: 2/2;
-    align-self: center;
-} 
   
 
   

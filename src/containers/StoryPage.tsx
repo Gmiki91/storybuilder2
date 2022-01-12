@@ -11,7 +11,7 @@ import { Story } from "../models/Story";
 
 const StoryPage = () => {
   const { storyId } = useParams();
-  const [story, setStory] = useState<Story>();
+  const [story, setStory] = useState<Story>({}as Story);
   const [pages, setPages] = useState<Page[]>([]);
   const [currentPageIndex, setCurrentPageIndex] = useState(-1);
   const [formType, setFormType] = useState<FormTypes>('');
@@ -37,13 +37,13 @@ const StoryPage = () => {
     const page = {
       text: form.text.value,
       level: form.level.value,
-      language: story!.language,
-      authorId: story!.authorId,
+      language: story.language,
+      authorId: story.authorId,
       rating: [],
       status: 'Pending'
         }
     const pageId = await axios.post(`${process.env.REACT_APP_LOCAL_HOST}pages/`, page).then((result) => result.data)
-    const body = { pageId: pageId, storyId: story!._id }
+    const body = { pageId: pageId, storyId: storyId }
     axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/addPage`, body).then(() =>{
       init();
       setFormType('');
@@ -51,13 +51,16 @@ const StoryPage = () => {
 
   }
 
-  const handleRateText =(rate:number)=>{
-    //await axios.put(pages/rate)
+  const handleRateText =(rate:number, pageId:string)=>{
+    axios.put(`${process.env.REACT_APP_LOCAL_HOST}stories/rate`,{rate,storyId} );
+     axios.put(`${process.env.REACT_APP_LOCAL_HOST}pages/rateText`, {rate,pageId}).then(()=>{
+      init();
+     })
   }
 
-  const handleRateLevel=(vote:string)=>{
-    const body = {vote:vote, pageId:pages[currentPageIndex]._id};
-    axios.put(`${process.env.REACT_APP_LOCAL_HOST}pages/rate`, body).then(()=>{
+  const handleRateLevel=(rate:string)=>{
+    const body = {rate:rate, pageId:pages[currentPageIndex]._id};
+    axios.put(`${process.env.REACT_APP_LOCAL_HOST}pages/rateLevel`, body).then(()=>{
       init();
       setCurrentPageIndex(-1)
     });
@@ -72,7 +75,7 @@ const StoryPage = () => {
     key={page._id}
     page={page}
     onRateLevel={() => setCurrentPageIndex(i)}
-    onRateText={handleRateText}
+    onRateText={(rate)=>handleRateText(rate,page._id)}
   />) : <div>No pages yet </div>
 
   const getForm = () => {

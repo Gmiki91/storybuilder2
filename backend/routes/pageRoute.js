@@ -27,10 +27,18 @@ router.post('/', async (req, res) => {
     res.send(obj._id)
 });
 
-router.put('/rate', async (req, res) => {
+router.put('/rateLevel', async (req, res) => {
     const page = await Page.findById(req.body.pageId);
-    const vote  = mapRateStringToNum(req.body.vote);
-    page.levels.push({userId:'',rate:vote});
+    const rate  = mapRateStringToNum(req.body.rate);
+    page.levels.push({userId:'',rate:rate});
+    await page.save();
+    res.send('ok');
+})
+
+router.put('/rateText', async (req, res) => {
+    const page = await Page.findById(req.body.pageId);
+    const rate = req.body.rate;
+    page.ratings.push({userId:'',rate:rate})
     await page.save();
     res.send('ok');
 })

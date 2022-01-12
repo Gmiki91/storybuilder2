@@ -2,7 +2,7 @@ import './Form.css';
 import { levels } from '../../../models/LanguageLevel';
 type Props = {
     level: string;
-    onSubmit: (vote: string) => void;
+    onSubmit: (rate: string) => void;
     onClose: () => void;
 }
 export const RateLevel: React.FC<Props> = ({ level, onSubmit, onClose }) => {
