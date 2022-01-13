@@ -9,7 +9,7 @@ export type Story = {
     authorId: string;
     rating: number;
     updatedAt: Date;
-    openForSubmissions: boolean;
+    openEnded: boolean;
     pageIds: string[];
     pendingPageIds: string[]
 }

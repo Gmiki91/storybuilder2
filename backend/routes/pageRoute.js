@@ -3,15 +3,13 @@ const router = express.Router();
 
 const Page = require('../models/page');
 
-router.get('/:ids', async (req, res) => {
-    const ids = req.params.ids.split(',');
-    const pages = await Page.find({ _id: { $in: ids } });
-    const mappedPages = pages.map(page => (
-        {...page.toObject(),
-            level: mapRateNumToString(page.levels.reduce((sum, level) => sum + level.rate, 0) / page.levels.length)
-        }
-    ));
-    res.status(200).json(mappedPages);
+router.get('/:id', async (req, res) => {
+    const page = await Page.findById(req.params.id)
+    const mappedPage = {
+        ...page.toObject(),
+        level: mapRateNumToString(page.levels.reduce((sum, level) => sum + level.rate, 0) / page.levels.length)
+    }
+    res.status(200).json(mappedPage);
 });
 
 router.post('/', async (req, res) => {
@@ -29,8 +27,8 @@ router.post('/', async (req, res) => {
 
 router.put('/rateLevel', async (req, res) => {
     const page = await Page.findById(req.body.pageId);
-    const rate  = mapRateStringToNum(req.body.rate);
-    page.levels.push({userId:'',rate:rate});
+    const rate = mapRateStringToNum(req.body.rate);
+    page.levels.push({ userId: '', rate: rate });
     await page.save();
     res.send('ok');
 })
@@ -38,7 +36,7 @@ router.put('/rateLevel', async (req, res) => {
 router.put('/rateText', async (req, res) => {
     const page = await Page.findById(req.body.pageId);
     const rate = req.body.rate;
-    page.ratings.push({userId:'',rate:rate})
+    page.ratings.push({ userId: '', rate: rate })
     await page.save();
     res.send('ok');
 })

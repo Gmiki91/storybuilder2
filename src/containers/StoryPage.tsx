@@ -11,25 +11,34 @@ import { Story } from "../models/Story";
 
 const StoryPage = () => {
   const { storyId } = useParams();
-  const [story, setStory] = useState<Story>({}as Story);
-  const [pages, setPages] = useState<Page[]>([]);
-  const [currentPageIndex, setCurrentPageIndex] = useState(-1);
+  const [story, setStory] = useState({} as Story);
+  const [page, setPage] = useState({} as Page);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [formType, setFormType] = useState<FormTypes>('');
 
   //console.log('[StoryPage] renders')
-  const init = useCallback(async () => {
+  const loadStory = useCallback(async () => {
     const story = await axios.get<Story>(`${process.env.REACT_APP_LOCAL_HOST}stories/${storyId}`).then(result => result.data);
-    const pageIds = story.pageIds.join(',');
-    if (pageIds.length > 0) {
-      const pages = await axios.get<Page[]>(`${process.env.REACT_APP_LOCAL_HOST}pages/${pageIds}`).then(result => result.data);
-      setPages(pages);
-    }
     setStory(story);
+    setFormType('');
   }, [storyId]);
 
   useEffect(() => {
-    init();
-  }, [init])
+    loadStory();
+  }, [loadStory])
+
+  //reload page
+  const loadPage = useCallback(async () => {
+    if (story.pageIds) {
+      const id = story.pageIds[currentPageIndex];
+      const page = await axios.get<Page>(`${process.env.REACT_APP_LOCAL_HOST}pages/${id}`).then(result => result.data);
+      setPage(page);
+    }
+  }, [currentPageIndex, story])
+
+  useEffect(() => {
+    loadPage();
+  }, [loadPage])
 
   const addPage = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -41,61 +50,59 @@ const StoryPage = () => {
       authorId: story.authorId,
       rating: [],
       status: 'Pending'
-        }
+    }
     const pageId = await axios.post(`${process.env.REACT_APP_LOCAL_HOST}pages/`, page).then((result) => result.data)
     const body = { pageId: pageId, storyId: storyId }
-    axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/addPage`, body).then(() =>{
-      init();
-      setFormType('');
-    });
-
-  }
-
-  const handleRateText =(rate:number, pageId:string)=>{
-    axios.put(`${process.env.REACT_APP_LOCAL_HOST}stories/rate`,{rate,storyId} );
-     axios.put(`${process.env.REACT_APP_LOCAL_HOST}pages/rateText`, {rate,pageId}).then(()=>{
-      init();
-     })
-  }
-
-  const handleRateLevel=(rate:string)=>{
-    const body = {rate:rate, pageId:pages[currentPageIndex]._id};
-    axios.put(`${process.env.REACT_APP_LOCAL_HOST}pages/rateLevel`, body).then(()=>{
-      init();
-      setCurrentPageIndex(-1)
+    axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/addPage`, body).then(() => {
+      loadStory();
     });
   }
 
-  const handleCloseModal=()=>{
-    if (formType === 'newPage') setFormType('');
-    if (currentPageIndex>-1) setCurrentPageIndex(-1);
+  const handleRateText = (rate: number) => {
+    axios.put(`${process.env.REACT_APP_LOCAL_HOST}stories/rate`, { rate, storyId });
+    axios.put(`${process.env.REACT_APP_LOCAL_HOST}pages/rateText`, { rate: rate, pageId: page._id }).then(() => {
+      loadStory();
+    })
   }
 
-  const pageList = pages.length > 0 ? pages.map((page, i) => <PageCard
+  const handleRateLevel = (rate: string) => {
+    const body = { rate: rate, pageId: page._id };
+    axios.put(`${process.env.REACT_APP_LOCAL_HOST}pages/rateLevel`, body).then(() => {
+      loadPage();
+    });
+  }
+
+  const pageContent = page ? <PageCard
     key={page._id}
     page={page}
-    onRateLevel={() => setCurrentPageIndex(i)}
-    onRateText={(rate)=>handleRateText(rate,page._id)}
-  />) : <div>No pages yet </div>
+    onRateLevel={() => setFormType('rateLevel')}
+    onRateText={(rate) => handleRateText(rate)}
+  /> : <div>No pages yet </div>
 
   const getForm = () => {
     if (formType === 'newPage') return <NewPage onSubmit={(e) => addPage(e)} onClose={() => setFormType('')} />
-    if ( currentPageIndex>-1) return <RateLevel level={pages[currentPageIndex].level} onSubmit={handleRateLevel} onClose={() => setCurrentPageIndex(-1)} />
+    if (formType === 'rateLevel') return <RateLevel level={page.level} onSubmit={handleRateLevel} onClose={() => setCurrentPageIndex(-1)} />
     return null;
   }
+
+  const onLastPage = story.pageIds ? currentPageIndex === story.pageIds.length - 1 : true;
 
   const form = getForm();
   return story ? <>
     <h1>{story.title}</h1>
-    {formType !== '' || currentPageIndex>-1 ?
-      <Modal closeModal={handleCloseModal}>
+    {formType !== '' ?
+      <Modal closeModal={() => setFormType('')}>
         {form}
       </Modal> : null}
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {pageList}
+      {pageContent}
     </div>
     <br></br>
-    <button onClick={() => setFormType('newPage')}>Add Page</button>
+    <div className='footer'>
+      {currentPageIndex > 0 ? <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button> : null}
+      {onLastPage && story.openEnded ? <button onClick={() => setFormType('newPage')}>Add Page</button> : null}
+      {onLastPage ? null : <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button>}
+    </div>
   </>
     : <div>loading</div>
 }
