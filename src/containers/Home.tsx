@@ -21,7 +21,7 @@ type ListModifications = {
 }
 
 const Home: React.FC = () => {
-    const isAuthenticated = useAuth().authToken!=='';
+    const isAuthenticated = useAuth().authToken !== '';
     const navigate = useNavigate();
     console.log('[HOME] render')
     const [listModifications, setListModifications] = useState<ListModifications>({
@@ -37,7 +37,7 @@ const Home: React.FC = () => {
     const [formType, setFormType] = useState<FormTypes>('');
 
     const getSortedList = useCallback(() => {
-        axios.post<StorySummary[]>(`${ LOCAL_HOST}/stories/all`, listModifications)
+        axios.post<StorySummary[]>(`${LOCAL_HOST}/stories/all`, listModifications)
             .then(result => {
                 setStories(result.data);
                 setFormType('');
@@ -53,7 +53,7 @@ const Home: React.FC = () => {
         navigate(`/${storyId}`)
     }
 
-    const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const form = event.currentTarget;
         const story = {
@@ -62,9 +62,11 @@ const Home: React.FC = () => {
             language: form.language.value,
             targetLevel: form.level.value,
         }
-        axios.post(`${ LOCAL_HOST}stories/`, story).then(() => {
-            getSortedList();
-        });
+        const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
+        const storyId = await axios.post<string>(`${LOCAL_HOST}/stories/`, story, { headers }).then((result) => result.data);
+        await axios.put(`${LOCAL_HOST}/users/`, { storyId }, { headers });
+        getSortedList();
+
     }
 
     const handleSortDirection = (direction: number) => {
@@ -97,7 +99,7 @@ const Home: React.FC = () => {
     const form = getForm();
 
     return <>
-        <Trigger text={'Create new story'} onClick={() => {isAuthenticated ? setFormType('newStory') : navigate(`/login`)}} />
+        <Trigger text={'Create new story'} onClick={() => { isAuthenticated ? setFormType('newStory') : navigate(`/login`) }} />
         <Trigger text={'Filter'} onClick={() => setFormType('filter')} />
         {formType !== '' &&
             <Modal closeModal={() => setFormType('')}>

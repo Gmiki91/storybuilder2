@@ -9,7 +9,7 @@ exports.getPage = async (req, res) => {
     res.status(200).json(mappedPage);
 }
 
-exports.createPage =  async (req, res) => {
+exports.createPage = async (req, res) => {
     const page = await Page.create({
         text: req.body.text,
         levels: [{ userId: '', rate: mapRateStringToNum(req.body.level) }],
@@ -23,18 +23,30 @@ exports.createPage =  async (req, res) => {
 
 exports.rateText = async (req, res) => {
     const page = await Page.findById(req.body.pageId);
-    const {rate} = req.body;
-    page.ratings.push({ userId: '', rate: rate })
+    const { rate } = req.body;
+    const vote = page.ratings.find(rate => rate.userId === req.body.authorId)
+    let newVote = false;
+    if (vote) {
+        vote.rate = rate
+    } else {
+        page.ratings.push({ userId: req.body.authorId, rate: rate })
+        newVote=true;
+    }
     await page.save();
-    res.send('ok');
+    res.status(200).json(newVote);
 }
 
 exports.rateLevel = async (req, res) => {
     const page = await Page.findById(req.body.pageId);
     const rate = mapRateStringToNum(req.body.rate);
-    page.levels.push({ userId: '', rate: rate });
+    const vote = page.levels.find(level => level.userId === req.body.authorId)
+    if (vote) {
+        vote.rate = rate
+    } else {
+        page.levels.push({ userId: req.body.authorId, rate: rate });
+    }
     await page.save();
-    res.send('ok');
+    res.status(200).json('ok');
 }
 
 const mapRateNumToString = (rate) => {

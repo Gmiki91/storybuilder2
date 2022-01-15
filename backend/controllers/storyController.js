@@ -6,14 +6,14 @@ exports.createStory = async (req, res) => {
         description: req.body.description,
         language: req.body.language,
         level: req.body.targetLevel,
-        authorId: '?',
+        authorId: req.body.authorId,
         rating: 0,
         updatedAt: new Date(),
         openEnded: false,
         pageIds: [],
         pendingPageIds: null
     });
-    res.send('story created');
+    res.status(200).json(story._id);
 }
 
 exports.getStory=async (req, res) => {

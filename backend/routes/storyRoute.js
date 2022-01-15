@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const storyController = require('../controllers/storyController');
 const authController = require('../controllers/authController');
+const authCheck = require('../middleware/authCheck');
 
 router
     .route('/all')
@@ -9,7 +10,7 @@ router
 
 router
     .route('/')
-    .post(authController.protect, storyController.createStory);
+    .post(authCheck, storyController.createStory);
 
 router
     .route('/addPage')

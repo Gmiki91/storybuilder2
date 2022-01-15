@@ -18,7 +18,6 @@ const Signup = () => {
       email,
       password
     }).then(result => {
-      console.log(result);
       if (result.status === 200) {
         setAuthToken(result.data.token);
         setLoggedIn(true);

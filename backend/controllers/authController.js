@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const signToken = (id)=>{
-    return jwt.sign({id},process.env.JWT_SECRET,{expiresIn:process.env.JWT_EXPIRATION});
+    return jwt.sign({id},process.env.JWT_SECRET);
 }
 
 exports.signup = async(req,res)=>{
@@ -10,9 +10,9 @@ exports.signup = async(req,res)=>{
         email: req.body.email,
         password: req.body.password,
         languages: null,
-        storyIdList: null,
-        pageIdList:null,
-        favoriteStoryIdList:null,
+        storyIdList: [],
+        pageIdList:[],
+        favoriteStoryIdList:[],
         writerRating: 0,
         translatorRating: 0
     });
@@ -24,7 +24,7 @@ exports.login= async (req, res) => {
     const {email, password} = req.body;
     const user = await User.findOne({email}).select('+password');
     if(!user || !(await user.correctPassword(password, user.password))){
-        return res.status(403).send('bukó')
+        return res.status(403).send('bukó');
     }
 
     const token = signToken(user._id);
@@ -32,7 +32,6 @@ exports.login= async (req, res) => {
         status:'success',
         token: token
     })
-    
 }
 
 exports.protect = async (req, res, next) => {

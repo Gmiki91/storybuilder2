@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pageController = require('../controllers/pageController');
+const authCheck = require('../middleware/authCheck');
 
 router
 .route('/:id')
@@ -8,15 +9,15 @@ router
 
 router
 .route('/')
-.post(pageController.createPage);
+.post(authCheck,pageController.createPage);
 
 router
 .route('/rateLevel')
-.put(pageController.rateLevel);
+.put(authCheck,pageController.rateLevel);
 
 router
 .route('/rateText')
-.put(pageController.rateText);
+.put(authCheck,pageController.rateText);
 
 
 module.exports = router;

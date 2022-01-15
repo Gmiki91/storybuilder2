@@ -19,7 +19,7 @@ const Login = () => {
       password
     }).then(result => {
       if (result.status === 200) {
-        setAuthToken(result.data);
+        setAuthToken(result.data.token);
         setLoggedIn(true);
       } else {
         setIsError(true);
