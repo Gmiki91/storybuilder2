@@ -1,13 +1,15 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
+import { StoryList } from "components/StoryList";
+import { StorySummary } from "models/StorySummary";
+import { Filter } from "components/modal/forms/Filter";
+import { NewStory } from "components/modal/forms/NewStory";
+import { FormTypes } from "components/modal/forms/FormTypes";
+import { Trigger } from "components/modal/Trigger";
+import { Modal } from "components/modal/Modal";
+import { LOCAL_HOST } from "constants/constants";
+import { useAuth } from "context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { StoryList } from "../components/StoryList";
-import { StorySummary } from "../models/StorySummary";
-import { Filter } from "../components/modal/forms/Filter";
-import { NewStory } from "../components/modal/forms/NewStory";
-import { FormTypes } from "../components/modal/forms/FormTypes";
-import { Trigger } from "../components/modal/Trigger";
-import { Modal } from "../components/modal/Modal";
 
 type ListModifications = {
     sortBy: string,
@@ -19,6 +21,7 @@ type ListModifications = {
 }
 
 const Home: React.FC = () => {
+    const isAuthenticated = useAuth().authTokens!=='';
     const navigate = useNavigate();
     console.log('[HOME] render')
     const [listModifications, setListModifications] = useState<ListModifications>({
@@ -34,7 +37,7 @@ const Home: React.FC = () => {
     const [formType, setFormType] = useState<FormTypes>('');
 
     const getSortedList = useCallback(() => {
-        axios.post<StorySummary[]>(`${process.env.REACT_APP_LOCAL_HOST}stories/all`, listModifications)
+        axios.post<StorySummary[]>(`${ LOCAL_HOST}/stories/all`, listModifications)
             .then(result => {
                 setStories(result.data);
                 setFormType('');
@@ -59,7 +62,7 @@ const Home: React.FC = () => {
             language: form.language.value,
             targetLevel: form.level.value,
         }
-        axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/`, story).then(() => {
+        axios.post(`${ LOCAL_HOST}stories/`, story).then(() => {
             getSortedList();
         });
     }
@@ -94,12 +97,12 @@ const Home: React.FC = () => {
     const form = getForm();
 
     return <>
-        <Trigger text={'Create new story'} onClick={() => { setFormType('newStory') }} />
-        <Trigger text={'Filter'} onClick={() => { setFormType('filter') }} />
-        {formType !== '' ?
+        <Trigger text={'Create new story'} onClick={() => {isAuthenticated ? setFormType('newStory') : navigate(`/login`)}} />
+        <Trigger text={'Filter'} onClick={() => setFormType('filter')} />
+        {formType !== '' &&
             <Modal closeModal={() => setFormType('')}>
                 {form}
-            </Modal> : null}
+            </Modal>}
         <br></br>
         {stories.length > 0 ?
             <StoryList

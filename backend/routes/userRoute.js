@@ -1,18 +1,12 @@
-const User = require('../models/user');
-const Router = require('../routes/storyRoute');
+const express = require('express');
+const router = express.Router();
+const authController = require('../controllers/authController');
 
-Router.get('/', (req,res)=>{
-    const user = User({
-        languages: null,
-        storyIdList: null,
-        pageIdList:null,
-        favoriteStoryIdList:null,
-        canAddToOwnStory: true,
-        writerRating: 0,
-        translatorRating: 0
-    });
-    user.save();
-    res.send('user saved');
-})
+router
+    .route('/signup')
+    .post(authController.signup);
+router
+    .route('/login')
+    .post(authController.login);
 
-module.exports =Router;
+module.exports = router;

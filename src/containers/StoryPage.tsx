@@ -1,15 +1,19 @@
 import axios from "axios";
 import { useCallback, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { FormTypes } from "../components/modal/forms/FormTypes";
-import { NewPage } from "../components/modal/forms/NewPage";
-import { RateLevel } from "../components/modal/forms/RateLevel";
-import { Modal } from "../components/modal/Modal";
-import { PageCard } from "../components/PageCard";
-import { Page } from "../models/Page";
-import { Story } from "../models/Story";
+import { useNavigate, useParams } from "react-router-dom";
+import { FormTypes } from "components/modal/forms/FormTypes";
+import { NewPage } from "components/modal/forms/NewPage";
+import { RateLevel } from "components/modal/forms/RateLevel";
+import { Modal } from "components/modal/Modal";
+import { PageCard } from "components/PageCard";
+import { Page } from "models/Page";
+import { Story } from "models/Story";
+import {LOCAL_HOST} from 'constants/constants';
+import { useAuth } from "context/AuthContext";
 
 const StoryPage = () => {
+  const navigate = useNavigate();
+  const isAuthenticated = useAuth().authTokens!=='';
   const { storyId } = useParams();
   const [story, setStory] = useState({} as Story);
   const [page, setPage] = useState({} as Page);
@@ -18,7 +22,7 @@ const StoryPage = () => {
 
   //console.log('[StoryPage] renders')
   const loadStory = useCallback(async () => {
-    const story = await axios.get<Story>(`${process.env.REACT_APP_LOCAL_HOST}stories/${storyId}`).then(result => result.data);
+    const story = await axios.get<Story>(`${ LOCAL_HOST}/stories/${storyId}`).then(result => result.data);
     setStory(story);
     setFormType('');
   }, [storyId]);
@@ -31,7 +35,7 @@ const StoryPage = () => {
   const loadPage = useCallback(async () => {
     if (story.pageIds) {
       const id = story.pageIds[currentPageIndex];
-      const page = await axios.get<Page>(`${process.env.REACT_APP_LOCAL_HOST}pages/${id}`).then(result => result.data);
+      const page = await axios.get<Page>(`${ LOCAL_HOST}/pages/${id}`).then(result => result.data);
       setPage(page);
     }
   }, [currentPageIndex, story])
@@ -51,23 +55,23 @@ const StoryPage = () => {
       rating: [],
       status: 'Pending'
     }
-    const pageId = await axios.post(`${process.env.REACT_APP_LOCAL_HOST}pages/`, page).then((result) => result.data)
+    const pageId = await axios.post(`${ LOCAL_HOST}/pages/`, page).then((result) => result.data)
     const body = { pageId: pageId, storyId: storyId }
-    axios.post(`${process.env.REACT_APP_LOCAL_HOST}stories/addPage`, body).then(() => {
+    axios.post(`${ LOCAL_HOST}stories/addPage`, body).then(() => {
       loadStory();
     });
   }
 
   const handleRateText = (rate: number) => {
-    axios.put(`${process.env.REACT_APP_LOCAL_HOST}stories/rate`, { rate, storyId });
-    axios.put(`${process.env.REACT_APP_LOCAL_HOST}pages/rateText`, { rate: rate, pageId: page._id }).then(() => {
+    axios.put(`${ LOCAL_HOST}/stories/rate`, { rate, storyId });
+    axios.put(`${ LOCAL_HOST}/pages/rateText`, { rate: rate, pageId: page._id }).then(() => {
       loadStory();
     })
   }
 
   const handleRateLevel = (rate: string) => {
     const body = { rate: rate, pageId: page._id };
-    axios.put(`${process.env.REACT_APP_LOCAL_HOST}pages/rateLevel`, body).then(() => {
+    axios.put(`${ LOCAL_HOST}/pages/rateLevel`, body).then(() => {
       loadPage();
     });
   }
@@ -90,18 +94,18 @@ const StoryPage = () => {
   const form = getForm();
   return story ? <>
     <h1>{story.title}</h1>
-    {formType !== '' ?
+    {formType !== '' &&
       <Modal closeModal={() => setFormType('')}>
         {form}
-      </Modal> : null}
+      </Modal>}
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {pageContent}
     </div>
     <br></br>
     <div className='footer'>
-      {currentPageIndex > 0 ? <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button> : null}
-      {onLastPage && story.openEnded ? <button onClick={() => setFormType('newPage')}>Add Page</button> : null}
-      {onLastPage ? null : <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button>}
+      {currentPageIndex > 0 && <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button>}
+      {onLastPage && story.openEnded && <button onClick={() =>{isAuthenticated ? setFormType('newPage') : navigate('/login')}}>Add Page</button>}
+      {!onLastPage && <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button>}
     </div>
   </>
     : <div>loading</div>

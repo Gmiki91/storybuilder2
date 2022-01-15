@@ -1,6 +1,15 @@
 const mongoose = require('mongoose');
-
 const user = mongoose.Schema({
+    email:{
+        type:String,
+        unique:true,
+        required:[true, 'Please enter your email address'],
+    },
+    password:{
+        type:String,
+        required:true,
+        minLength:6
+    },
     languages: [{
         code: String,
         level: String
@@ -8,7 +17,6 @@ const user = mongoose.Schema({
     storyIdList: [String],
     pageIdList: [String],
     favoriteStoryIdList:[String],
-    canAddToOwnStory: Boolean,
     writerRating: Number,
     translatorRating: Number
 }, {collection:'users'})
