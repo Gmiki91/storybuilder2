@@ -20,8 +20,9 @@ const Signup = () => {
     }).then(result => {
       console.log(result);
       if (result.status === 200) {
-        setAuthTokens(result.data);
+        setAuthTokens(result.data.token);
         setLoggedIn(true);
+        navigate("/");
       } else {
         setIsError(true);
       }
@@ -30,10 +31,6 @@ const Signup = () => {
     });
   }
 
-  console.log(isLoggedIn);
-  if (isLoggedIn) {
-    navigate("/");
-  }
   return (
     <Card>
       <Form>

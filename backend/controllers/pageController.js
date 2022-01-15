@@ -10,7 +10,7 @@ exports.getPage = async (req, res) => {
 }
 
 exports.createPage =  async (req, res) => {
-    const page = Page({
+    const page = await Page.create({
         text: req.body.text,
         levels: [{ userId: '', rate: mapRateStringToNum(req.body.level) }],
         language: req.body.language,
@@ -18,13 +18,12 @@ exports.createPage =  async (req, res) => {
         ratings: req.body.rating,
         status: req.body.status,
     });
-    const obj = await page.save();
-    res.send(obj._id)
+    res.send(page._id)
 }
 
 exports.rateText = async (req, res) => {
     const page = await Page.findById(req.body.pageId);
-    const rate = req.body.rate;
+    const {rate} = req.body;
     page.ratings.push({ userId: '', rate: rate })
     await page.save();
     res.send('ok');

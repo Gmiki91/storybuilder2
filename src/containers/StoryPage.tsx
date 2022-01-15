@@ -57,7 +57,7 @@ const StoryPage = () => {
     }
     const pageId = await axios.post(`${ LOCAL_HOST}/pages/`, page).then((result) => result.data)
     const body = { pageId: pageId, storyId: storyId }
-    axios.post(`${ LOCAL_HOST}stories/addPage`, body).then(() => {
+    axios.post(`${ LOCAL_HOST}/stories/addPage`, body).then(() => {
       loadStory();
     });
   }

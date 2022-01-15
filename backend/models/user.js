@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 const user = mongoose.Schema({
     email:{
         type:String,
@@ -8,7 +9,8 @@ const user = mongoose.Schema({
     password:{
         type:String,
         required:true,
-        minLength:6
+        minLength:6,
+        select:false
     },
     languages: [{
         code: String,
@@ -21,4 +23,11 @@ const user = mongoose.Schema({
     translatorRating: Number
 }, {collection:'users'})
 
+user.pre('save', async function(next)  {
+    this.password= await bcrypt.hash(this.password,12);
+    next();
+})
+user.methods.correctPassword= async function(candidatePw, userPw){
+    return await bcrypt.compare(candidatePw,userPw)
+}
 module.exports=mongoose.model('User',user);

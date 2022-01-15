@@ -1,7 +1,7 @@
 const Story = require('../models/story');
 
 exports.createStory = async (req, res) => {
-    const story = Story({
+    const story = await Story.create({
         title: req.body.title,
         description: req.body.description,
         language: req.body.language,
@@ -13,7 +13,6 @@ exports.createStory = async (req, res) => {
         pageIds: [],
         pendingPageIds: null
     });
-    await story.save();
     res.send('story created');
 }
 
@@ -34,8 +33,7 @@ exports.getStories =  async (req, res) => {
     if(req.body.levels.length>0)query['level']= req.body.levels;
     if(req.body.openEnded!=='both')query['openEnded']=req.body.openEnded;
     
-    const sortBy = req.body.sortBy
-    const sortDirection = req.body.sortDirection;
+    const {sortBy, sortDirection} = req.body;
     const sortObject = {};
     sortObject[sortBy] = sortDirection;
     const result = await Story
