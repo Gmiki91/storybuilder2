@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const storyController = require('../controllers/storyController');
+const authController = require('../controllers/authController');
 
 router
     .route('/all')
@@ -8,7 +9,7 @@ router
 
 router
     .route('/')
-    .post(storyController.createStory);
+    .post(authController.protect, storyController.createStory);
 
 router
     .route('/addPage')

@@ -7,7 +7,6 @@ type Props = {
 }
 export const RateLevel: React.FC<Props> = ({ level, onSubmit, onClose }) => {
     const levelObj = levels.find(l => l.code === level);
-    const otherLevels = levels.filter(l => l.code === level);
 
     return levelObj ? <div className='form-box'>
         <label>This text is level {levelObj.code} ({levelObj.text}). Do you agree? </label>

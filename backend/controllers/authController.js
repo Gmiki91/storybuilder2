@@ -34,3 +34,7 @@ exports.login= async (req, res) => {
     })
     
 }
+
+exports.protect = async (req, res, next) => {
+    next();
+}

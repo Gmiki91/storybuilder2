@@ -8,12 +8,12 @@ import { Modal } from "components/modal/Modal";
 import { PageCard } from "components/PageCard";
 import { Page } from "models/Page";
 import { Story } from "models/Story";
-import {LOCAL_HOST} from 'constants/constants';
+import { LOCAL_HOST } from 'constants/constants';
 import { useAuth } from "context/AuthContext";
 
 const StoryPage = () => {
   const navigate = useNavigate();
-  const isAuthenticated = useAuth().authTokens!=='';
+  const isAuthenticated = useAuth().authToken !== '';
   const { storyId } = useParams();
   const [story, setStory] = useState({} as Story);
   const [page, setPage] = useState({} as Page);
@@ -22,7 +22,7 @@ const StoryPage = () => {
 
   //console.log('[StoryPage] renders')
   const loadStory = useCallback(async () => {
-    const story = await axios.get<Story>(`${ LOCAL_HOST}/stories/${storyId}`).then(result => result.data);
+    const story = await axios.get<Story>(`${LOCAL_HOST}/stories/${storyId}`).then(result => result.data);
     setStory(story);
     setFormType('');
   }, [storyId]);
@@ -35,7 +35,7 @@ const StoryPage = () => {
   const loadPage = useCallback(async () => {
     if (story.pageIds) {
       const id = story.pageIds[currentPageIndex];
-      const page = await axios.get<Page>(`${ LOCAL_HOST}/pages/${id}`).then(result => result.data);
+      const page = await axios.get<Page>(`${LOCAL_HOST}/pages/${id}`).then(result => result.data);
       setPage(page);
     }
   }, [currentPageIndex, story])
@@ -55,25 +55,33 @@ const StoryPage = () => {
       rating: [],
       status: 'Pending'
     }
-    const pageId = await axios.post(`${ LOCAL_HOST}/pages/`, page).then((result) => result.data)
+    const pageId = await axios.post(`${LOCAL_HOST}/pages/`, page).then((result) => result.data)
     const body = { pageId: pageId, storyId: storyId }
-    axios.post(`${ LOCAL_HOST}/stories/addPage`, body).then(() => {
+    axios.post(`${LOCAL_HOST}/stories/addPage`, body).then(() => {
       loadStory();
     });
   }
 
   const handleRateText = (rate: number) => {
-    axios.put(`${ LOCAL_HOST}/stories/rate`, { rate, storyId });
-    axios.put(`${ LOCAL_HOST}/pages/rateText`, { rate: rate, pageId: page._id }).then(() => {
-      loadStory();
-    })
+    if (isAuthenticated) {
+      axios.put(`${LOCAL_HOST}/stories/rate`, { rate, storyId });
+      axios.put(`${LOCAL_HOST}/pages/rateText`, { rate: rate, pageId: page._id }).then(() => {
+        loadStory();
+      })
+    } else {
+      navigate(`/login`);
+    }
   }
 
   const handleRateLevel = (rate: string) => {
-    const body = { rate: rate, pageId: page._id };
-    axios.put(`${ LOCAL_HOST}/pages/rateLevel`, body).then(() => {
-      loadPage();
-    });
+    if (isAuthenticated) {
+      const body = { rate: rate, pageId: page._id };
+      axios.put(`${LOCAL_HOST}/pages/rateLevel`, body).then(() => {
+        loadPage();
+      });
+    } else {
+      navigate(`/login`);
+    }
   }
 
   const pageContent = page ? <PageCard
@@ -104,7 +112,7 @@ const StoryPage = () => {
     <br></br>
     <div className='footer'>
       {currentPageIndex > 0 && <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button>}
-      {onLastPage && story.openEnded && <button onClick={() =>{isAuthenticated ? setFormType('newPage') : navigate('/login')}}>Add Page</button>}
+      {onLastPage && story.openEnded && <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button>}
       {!onLastPage && <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button>}
     </div>
   </>

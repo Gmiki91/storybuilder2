@@ -21,7 +21,7 @@ type ListModifications = {
 }
 
 const Home: React.FC = () => {
-    const isAuthenticated = useAuth().authTokens!=='';
+    const isAuthenticated = useAuth().authToken!=='';
     const navigate = useNavigate();
     console.log('[HOME] render')
     const [listModifications, setListModifications] = useState<ListModifications>({

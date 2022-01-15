@@ -10,16 +10,16 @@ const Login = () => {
   const [isError, setIsError] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setAuthTokens } = useAuth();
+  const { setAuthToken } = useAuth();
   const navigate = useNavigate();
 
   const postLogin = () => {
-    axios.post(`${ LOCAL_HOST}/auth/login`, {
+    axios.post(`${ LOCAL_HOST}/users/login`, {
       email,
       password
     }).then(result => {
       if (result.status === 200) {
-        setAuthTokens(result.data);
+        setAuthToken(result.data);
         setLoggedIn(true);
       } else {
         setIsError(true);
