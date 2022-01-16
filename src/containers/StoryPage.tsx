@@ -15,6 +15,8 @@ const StoryPage = () => {
   const navigate = useNavigate();
   const isAuthenticated = useAuth().authToken !== '';
   const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
+  const userId = localStorage.getItem('userId');
+
   const { storyId } = useParams();
   const [story, setStory] = useState({} as Story);
   const [page, setPage] = useState({} as Page);
@@ -56,8 +58,9 @@ const StoryPage = () => {
       rating: [],
       status: 'Pending'
     }
-    const pageId = await axios.post(`${LOCAL_HOST}/pages/`, page, { headers: headers }).then((result) => result.data)
-    const body = { pageId: pageId, storyId: storyId }
+    const pageId = await axios.post(`${LOCAL_HOST}/pages/`, page, { headers: headers }).then((result) => result.data);
+    axios.post(`${LOCAL_HOST}/users/`,{ pageId }, { headers });
+    const body = { pageId: pageId, storyId: storyId };
     axios.post(`${LOCAL_HOST}/stories/addPage`, body).then(() => {
       loadStory();
     });
@@ -100,7 +103,7 @@ const StoryPage = () => {
   }
 
   const onLastPage = story.pageIds && story.pageIds.length > 0 ? currentPageIndex === story.pageIds.length - 1 : true;
-
+  const addPageVisible = onLastPage && (story.openEnded || userId ===story.authorId);
   const form = getForm();
   return story ? <>
     <h1>{story.title}</h1>
@@ -114,7 +117,7 @@ const StoryPage = () => {
     <br></br>
     <div className='footer'>
       {currentPageIndex > 0 ? <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button> : null}
-      {onLastPage && story.openEnded ? <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button> : null}
+      {addPageVisible ? <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button> : null}
       {!onLastPage ? <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button> : null}
     </div>
   </>

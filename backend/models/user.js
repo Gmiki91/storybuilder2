@@ -22,11 +22,11 @@ const user = mongoose.Schema({
     writerRating: Number,
     translatorRating: Number
 }, {collection:'users'})
-/*
+
 user.pre('save', async function(next)  {
     this.password= await bcrypt.hash(this.password,12);
     next();
-})*/
+})
 user.methods.correctPassword= async function(candidatePw, userPw){
     return await bcrypt.compare(candidatePw,userPw)
 }

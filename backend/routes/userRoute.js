@@ -15,5 +15,6 @@ router
 router
 .route('/')
 .put(authCheck,userController.addStoryId)
+.post(authCheck,userController.addPageId);
 
 module.exports = router;

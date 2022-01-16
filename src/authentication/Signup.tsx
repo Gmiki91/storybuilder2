@@ -20,6 +20,7 @@ const Signup = () => {
     }).then(result => {
       if (result.status === 200) {
         setAuthToken(result.data.token);
+        localStorage.setItem("userId", result.data.userId);
         setLoggedIn(true);
         navigate("/");
       } else {
