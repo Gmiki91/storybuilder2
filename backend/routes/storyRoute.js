@@ -14,7 +14,12 @@ router
 
 router
     .route('/addPage')
-    .post(storyController.addPage);
+    .post(storyController.addPage)
+    .put(storyController.addPendingPage);
+
+router
+    .route('/addPendingPage')
+    .post(storyController.addPendingPage);
 
 router
     .route('/:id')

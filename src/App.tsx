@@ -8,6 +8,7 @@ import Login from 'authentication/Login';
 import Signup from 'authentication/Signup';
 import { useState } from 'react';
 import { Logout } from 'authentication/Logout';
+import PendingList from 'containers/PendingList';
 
 const App = () => {
   const token = localStorage.getItem("token");
@@ -27,13 +28,17 @@ const App = () => {
           <NavLink to='/stats'>Stats</NavLink>
           {authToken != ''
             ? <NavLink to='/logout'>Logout</NavLink>
-            : <NavLink to='/login'>Login</NavLink>}
+            : <>
+              <NavLink to='/login'>Login</NavLink>
+              <NavLink to='/signup'>Sign up</NavLink>
+            </>}
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/login' element={<Login />} />
             <Route path='/logout' element={<Logout />} />
             <Route path='/signup' element={<Signup />} />
             <Route path='/:storyId' element={<StoryPage />} />
+            <Route path='/:storyId/:pageIds' element={<PendingList />} />
             <Route path='/stats' element={<Stats />} />
           </Routes>
         </BrowserRouter>

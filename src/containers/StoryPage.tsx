@@ -59,9 +59,9 @@ const StoryPage = () => {
       status: 'Pending'
     }
     const pageId = await axios.post(`${LOCAL_HOST}/pages/`, page, { headers: headers }).then((result) => result.data);
-    axios.post(`${LOCAL_HOST}/users/`,{ pageId }, { headers });
+    //axios.post(`${LOCAL_HOST}/users/`,{ pageId }, { headers }); - jóváhagyás után fogjuk meghívni. De hogy hol, azt még nem tudom!!!!!!!!!!!!!!!
     const body = { pageId: pageId, storyId: storyId };
-    axios.post(`${LOCAL_HOST}/stories/addPage`, body).then(() => {
+    axios.post(`${LOCAL_HOST}/stories/addPendingPage`, body).then(() => {
       loadStory();
     });
   }
@@ -92,6 +92,7 @@ const StoryPage = () => {
   const pageContent = page._id ? <PageCard
     key={page._id}
     page={page}
+    pending={false}
     onRateLevel={() => setFormType('rateLevel')}
     onRateText={(rate) => handleRateText(rate)}
   /> : <div>No pages yet </div>
@@ -104,6 +105,7 @@ const StoryPage = () => {
 
   const onLastPage = story.pageIds && story.pageIds.length > 0 ? currentPageIndex === story.pageIds.length - 1 : true;
   const addPageVisible = onLastPage && (story.openEnded || userId ===story.authorId);
+  const pendingPages = story.pendingPageIds&& story.pendingPageIds.length>0 && <div>Pending: {story.pendingPageIds.length}</div>
   const form = getForm();
   return story ? <>
     <h1>{story.title}</h1>
@@ -116,10 +118,11 @@ const StoryPage = () => {
     </div>
     <br></br>
     <div className='footer'>
-      {currentPageIndex > 0 ? <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button> : null}
-      {addPageVisible ? <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button> : null}
-      {!onLastPage ? <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button> : null}
+      {currentPageIndex > 0 &&  <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button> }
+      {addPageVisible && <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button>}
+      {!onLastPage &&  <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button> }
     </div>
+    {pendingPages}
   </>
     : <div>loading</div>
 }

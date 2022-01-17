@@ -1,11 +1,11 @@
 import {Level} from "./LanguageLevel"
 
 export type Story = {
-    _id?:string;
+    _id:string;
     title: string;
     description: string;
     language: string;
-    targetLevel: Level;
+    level: Level;
     authorId: string;
     rating: number;
     updatedAt: Date;

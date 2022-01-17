@@ -9,6 +9,17 @@ exports.getPage = async (req, res) => {
     res.status(200).json(mappedPage);
 }
 
+exports.getPendingPages = async (req, res) => {
+    const ids = req.params.ids.split(',');
+    const pages = await Page.find({_id:{$in: ids}});
+    const mappedPages = pages.map(page=>(
+        {...page.toObject(),
+        level: mapRateNumToString(page.levels.reduce((sum, level) => sum + level.rate, 0) / page.levels.length)}
+    ));
+    res.status(200).json(mappedPages);
+}
+
+
 exports.createPage = async (req, res) => {
     const page = await Page.create({
         text: req.body.text,

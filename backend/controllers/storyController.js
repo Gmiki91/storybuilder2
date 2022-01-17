@@ -5,13 +5,13 @@ exports.createStory = async (req, res) => {
         title: req.body.title,
         description: req.body.description,
         language: req.body.language,
-        level: req.body.targetLevel,
+        level: req.body.level,
         authorId: req.body.authorId,
         rating: 0,
         updatedAt: new Date(),
         openEnded: false,
         pageIds: [],
-        pendingPageIds: null
+        pendingPageIds: []
     });
     res.status(200).json(story._id);
 }
@@ -57,6 +57,13 @@ exports.rateStory = async (req, res) => {
 exports.addPage = async (req, res) => {
     const story = await Story.findById(req.body.storyId);
     story.pageIds.push(req.body.pageId);
+    await story.save();
+    res.status(200).send('saved');
+}
+
+exports.addPendingPage = async (req, res) => {
+    const story = await Story.findById(req.body.storyId);
+    story.pendingPageIds.push(req.body.pageId);
     await story.save();
     res.status(200).send('saved');
 }

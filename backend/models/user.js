@@ -20,7 +20,6 @@ const user = mongoose.Schema({
     pageIdList: [String],
     favoriteStoryIdList:[String],
     writerRating: Number,
-    translatorRating: Number
 }, {collection:'users'})
 
 user.pre('save', async function(next)  {

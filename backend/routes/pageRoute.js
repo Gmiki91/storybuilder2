@@ -7,6 +7,10 @@ router
 .route('/:id')
 .get(pageController.getPage)
 
+router.
+route('/pendig/:ids')
+.get(pageController.getPendingPages)
+
 router
 .route('/')
 .post(authCheck,pageController.createPage);

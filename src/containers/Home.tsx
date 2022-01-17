@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { StoryList } from "components/StoryList";
-import { StorySummary } from "models/StorySummary";
 import { Filter } from "components/modal/forms/Filter";
 import { NewStory } from "components/modal/forms/NewStory";
 import { FormTypes } from "components/modal/forms/FormTypes";
@@ -9,7 +9,7 @@ import { Trigger } from "components/modal/Trigger";
 import { Modal } from "components/modal/Modal";
 import { LOCAL_HOST } from "constants/constants";
 import { useAuth } from "context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Story } from "models/Story";
 
 type ListModifications = {
     sortBy: string,
@@ -32,12 +32,12 @@ const Home: React.FC = () => {
         levels: [],
         openEnded: 'both'
     });
-    const [stories, setStories] = useState<StorySummary[]>([]);
+    const [stories, setStories] = useState<Story[]>([]);
     const [filters, applyFilters] = useState(false);
     const [formType, setFormType] = useState<FormTypes>('');
 
     const getSortedList = useCallback(() => {
-        axios.post<StorySummary[]>(`${LOCAL_HOST}/stories/all`, listModifications)
+        axios.post<Story[]>(`${LOCAL_HOST}/stories/all`, listModifications)
             .then(result => {
                 setStories(result.data);
                 setFormType('');
@@ -60,7 +60,7 @@ const Home: React.FC = () => {
             title: form.titel.value,
             description: form.description.value,
             language: form.language.value,
-            targetLevel: form.level.value,
+            level: form.level.value,
         }
         const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
         const storyId = await axios.post<string>(`${LOCAL_HOST}/stories/`, story, { headers }).then((result) => result.data);
