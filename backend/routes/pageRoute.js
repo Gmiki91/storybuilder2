@@ -6,6 +6,7 @@ const authCheck = require('../middleware/authCheck');
 router
 .route('/:id')
 .get(pageController.getPage)
+.delete(pageController.deletePage)
 
 router.
 route('/pendig/:ids')

@@ -7,6 +7,7 @@ const signToken = (id)=>{
 
 exports.signup = async(req,res)=>{
     const user = await User.create({
+        name:req.body.name,
         email: req.body.email,
         password: req.body.password,
         languages: null,
@@ -20,8 +21,9 @@ exports.signup = async(req,res)=>{
 }
 
 exports.login= async (req, res) => {
-    const {email, password} = req.body;
-    const user = await User.findOne({email}).select('+password');
+    const {email,name, password} = req.body;
+    const authMode = email? email:name;
+    const user = await User.findOne({authMode}).select('+password');
     if(!user || !(await user.correctPassword(password, user.password))){
         return res.status(403).send('bukó');
     }

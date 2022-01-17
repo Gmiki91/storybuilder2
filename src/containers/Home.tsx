@@ -33,7 +33,7 @@ const Home: React.FC = () => {
         openEnded: 'both'
     });
     const [stories, setStories] = useState<Story[]>([]);
-    const [filters, applyFilters] = useState(false);
+    const [,applyFilters] = useState(false);
     const [formType, setFormType] = useState<FormTypes>('');
 
     const getSortedList = useCallback(() => {
@@ -42,16 +42,11 @@ const Home: React.FC = () => {
                 setStories(result.data);
                 setFormType('');
             });
-    }, [filters]);
+    }, [ listModifications]);
 
     useEffect(() => {
         getSortedList();
     }, [getSortedList]);
-
-    const storyClicked = (storyId: string) => {
-        //axios.delete(`${process.env.REACT_APP_LOCAL_HOST}stories/${storyId}`).then(() => getSortedList());
-        navigate(`/${storyId}`)
-    }
 
     const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -109,7 +104,6 @@ const Home: React.FC = () => {
         {stories.length > 0 ?
             <StoryList
                 stories={stories}
-                storyClicked={storyClicked}
                 handleSortDirection={handleSortDirection}
                 handleSortBy={handleSortBy} />
             : <div>loading</div>}

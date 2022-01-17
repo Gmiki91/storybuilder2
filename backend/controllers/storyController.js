@@ -55,7 +55,9 @@ exports.rateStory = async (req, res) => {
 }
 
 exports.addPage = async (req, res) => {
-    const story = await Story.findById(req.body.storyId);
+    // remove from pending list because it had to be there first, right?!
+    const story = await removeFromPendingList(req.body.storyId, req.body.pageId );
+
     story.pageIds.push(req.body.pageId);
     await story.save();
     res.status(200).send('saved');
@@ -66,4 +68,17 @@ exports.addPendingPage = async (req, res) => {
     story.pendingPageIds.push(req.body.pageId);
     await story.save();
     res.status(200).send('saved');
+}
+
+exports.removePendingPage = async (req, res) => {
+    const story = await removeFromPendingList(req.body.storyId, req.body.pageId );
+    await story.save();
+    res.status(200).send('saved');
+}
+
+const removeFromPendingList = async(storyId,pageId) => {
+    const story =  await Story.findById(storyId);
+    const index = story.pendingPageIds.indexOf(pageId);
+    story.pendingPageIds.splice(index, 1);
+    return story;
 }

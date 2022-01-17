@@ -13,13 +13,13 @@ router
     .post(authCheck, storyController.createStory);
 
 router
-    .route('/addPage')
-    .post(storyController.addPage)
-    .put(storyController.addPendingPage);
+    .route('/page')
+    .put(storyController.addPage)
 
 router
-    .route('/addPendingPage')
-    .post(storyController.addPendingPage);
+    .route('/pendingPage')
+    .post(storyController.addPendingPage)
+    .put(storyController.removePendingPage)
 
 router
     .route('/:id')

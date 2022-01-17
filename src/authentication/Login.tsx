@@ -8,6 +8,7 @@ import { Card, Form, Input, Button } from 'authentication/AuthForm';
 const Login = () => {
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { setAuthToken } = useAuth();
@@ -15,6 +16,7 @@ const Login = () => {
 
   const postLogin = () => {
     axios.post(`${ LOCAL_HOST}/users/login`, {
+      name,
       email,
       password
     }).then(result => {
@@ -37,6 +39,13 @@ const Login = () => {
   return (
     <Card>
       <Form>
+      <Input
+          value={name}
+          onChange={e => {
+            setName(e.target.value);
+          }}
+          placeholder="username"
+        />
         <Input type="email"
           value={email}
           onChange={e => {

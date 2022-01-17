@@ -5,12 +5,11 @@ import { useNavigate } from "react-router-dom";
 
 type Props = {
     stories: Story[];
-    storyClicked: (id: string) => void;
     handleSortBy:(sortBy:string)=>void;
     handleSortDirection:(sortDirection:number)=>void;
 }
 
-export const StoryList: React.FC<Props> = ({stories, storyClicked, handleSortBy, handleSortDirection }) => {
+export const StoryList: React.FC<Props> = ({stories, handleSortBy, handleSortDirection }) => {
     console.log('[StoryList] render');
     const navigate = useNavigate();
     return <>
@@ -27,8 +26,8 @@ export const StoryList: React.FC<Props> = ({stories, storyClicked, handleSortBy,
             <StoryCard
                 story={story}
                 key={story._id}
-                onClick={() => storyClicked(story._id)} 
-                handlePendingList={()=>navigate(`/${story._id}/${story.pendingPageIds.join(',')}`)}
+                onClick={() => navigate(`/${story._id}/confirmed`)} 
+                handlePendingList={()=>navigate(`/${story._id}/pending`)}
                 />
         )}
     </>

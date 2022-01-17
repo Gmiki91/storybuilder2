@@ -10,5 +10,5 @@ export const StoryCard: React.FC<Props> = ({ onClick,handlePendingList, story })
     <div onClick={onClick}>
         {story.title} {story.language}:{story.level} {story.updatedAt.toString().slice(14, 19)} {story.rating}
     </div>
-    <button onClick={handlePendingList}>Pending items: {story.pendingPageIds.length}</button>
+    {story.pendingPageIds.length>0 && <button onClick={handlePendingList}>Pending items: {story.pendingPageIds.length}</button>}
 </div>

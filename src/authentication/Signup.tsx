@@ -8,6 +8,7 @@ import { useAuth } from 'context/AuthContext';
 const Signup = () => {
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { setAuthToken } = useAuth();
@@ -15,6 +16,7 @@ const Signup = () => {
 
   const postSignup = () => {
     axios.post(`${LOCAL_HOST}/users/signup`, {
+      name,
       email,
       password
     }).then(result => {
@@ -34,6 +36,13 @@ const Signup = () => {
   return (
     <Card>
       <Form>
+      <Input
+          value={name}
+          onChange={e => {
+            setName(e.target.value);
+          }}
+          placeholder="username"
+        />
         <Input type="email"
           value={email}
           onChange={e => {
