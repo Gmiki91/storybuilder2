@@ -47,14 +47,19 @@ exports.deletePage = async (req, res) => {
 
 exports.rateText = async (req, res) => {
     const page = await Page.findById(req.body.pageId);
-    const { rate } = req.body;
-    const vote = page.ratings.find(rate => rate.userId === req.body.authorId)
-    const newVote = vote ? false : true;
-    vote ?
-        vote.rate = rate
-        : page.ratings.push({ userId: req.body.authorId, rate: rate })
+    const { vote } = req.body;
+    const originalVote = page.ratings.find(rate => rate.userId === req.body.authorId); // -1 0 1
+    let difference = originalVote ? vote-originalVote : vote;
+    if(vote===0){
+        const index = page.ratings.indexOf(vote);
+        page.ratings.splice(index,1);
+    }else{
+    originalVote ?
+    originalVote.rate = vote
+        : page.ratings.push({ userId: req.body.authorId, rate: vote })
+    }
     await page.save();
-    res.status(200).json(newVote);
+    res.status(200).json(difference);
 }
 
 exports.rateLevel = async (req, res) => {

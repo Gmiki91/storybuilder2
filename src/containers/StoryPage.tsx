@@ -85,13 +85,13 @@ const StoryPage = () => {
     axios.delete(`${LOCAL_HOST}/pages/pending/${idsToDelete.join(',')}`)
   }
 
-  const handleRateText = async (rate: number, confirming: boolean) => {
+  const handleRateText = async (vote: number, confirming: boolean) => {
     if (isAuthenticated) {
       let call1;
       let call2;
       if (confirming) {
         const body = { pageId: page._id, storyId: storyId };
-        if (rate === -1) { //remove Page
+        if (vote === -1) { //remove Page
           call1 = axios.delete(`${LOCAL_HOST}/pages/${page._id}`) //remove page document
           call2 = axios.put(`${LOCAL_HOST}/stories/pendingPage`, body) //remove pageId from story
         } else { //add Page
@@ -105,9 +105,8 @@ const StoryPage = () => {
       } else if (userId === page.authorId) {
         console.log('cant rate your own page');
       } else {
-        const newVote = await axios.put(`${LOCAL_HOST}/pages/rateText`, { rate: rate, pageId: page._id }, { headers: headers }).then(result=>result.data)
-        const actualRate = newVote ? rate : rate*2  //if vote has been altered it goes i.e from -1 to +1, so +2 has to be added to overall story rating.
-        if(pageStatus ==='confirmed') call2 =  axios.put(`${LOCAL_HOST}/stories/rate`, { actualRate, storyId });
+        const difference = await axios.put(`${LOCAL_HOST}/pages/rateText`, { vote, pageId: page._id }, { headers: headers }).then(result=>result.data)
+        if(pageStatus ==='confirmed') call2 =  axios.put(`${LOCAL_HOST}/stories/rate`, { difference, storyId });
       }
       await Promise.all([call1, call2]);
       loadStory();
