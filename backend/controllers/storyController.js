@@ -1,6 +1,7 @@
 const Story = require('../models/story');
+const catchAsync = require('../utils/catchAsync')
 
-exports.createStory = async (req, res) => {
+exports.createStory = catchAsync(async (req, res, next) => {
     const story = await Story.create({
         title: req.body.title,
         description: req.body.description,
@@ -13,16 +14,21 @@ exports.createStory = async (req, res) => {
         pageIds: [],
         pendingPageIds: []
     });
-    res.status(200).json(story._id);
-}
+    res.status(201).json({
+        status: 'success',
+        data:story._id
+    })
+})
 
-exports.getStory=async (req, res) => {
+exports.getStory=catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.params.id);
-    res.status(200).json(story);
+    res.status(200).json({
+        status: 'success',
+        data:story
+    })
+})
 
-}
-
-exports.getStories =  async (req, res) => {
+exports.getStories =  catchAsync(async (req, res, next) => {
     const query ={};
     if(req.body.from==='own'){
         //query['authorId'] = userId
@@ -40,39 +46,59 @@ exports.getStories =  async (req, res) => {
         .find(query)
         .sort(sortObject)
         .limit(50);
-    res.send(result);
-}
 
-exports.deleteStory = (req, res) => {
-    Story.findByIdAndDelete(req.params.id).then(() => res.send('deleted'));
-}
+    res.status(200).json({
+        status: 'success',
+        data:result
+    })
+})
 
-exports.rateStory = async (req, res) => {
+exports.deleteStory = catchAsync(async(req, res,next) => {
+    await Story.findByIdAndDelete(req.params.id);
+    res.status(204).json({
+        status: 'success',
+        data:null
+    })
+})
+
+exports.rateStory = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.body.storyId);
     story.rating += req.body.difference;
     await story.save();
-    res.status(200).send('ok');
-}
+    res.status(204).json({
+        status: 'success',
+        data:null
+    })
+})
 
-exports.addPage = async (req, res) => {
+exports.addPage = catchAsync(async (req, res, next) => {
     const story =  await Story.findById(req.body.storyId);
     story.pendingPageIds = []; //removing all pending pages;
     story.pageIds.push(req.body.pageId);
     await story.save();
-    res.status(200).send('saved');
-}
+    res.status(204).json({
+        status: 'success',
+        data:null
+    })
+})
 
-exports.addPendingPage = async (req, res) => {
+exports.addPendingPage =catchAsync( async (req, res, next) => {
     const story = await Story.findById(req.body.storyId);
     story.pendingPageIds.push(req.body.pageId);
     await story.save();
-    res.status(200).send('saved');
-}
+    res.status(204).json({
+        status: 'success',
+        data:null
+    })
+})
 
-exports.removePendingPage = async (req, res) => {
+exports.removePendingPage =catchAsync(async (req, res, next) => {
     const story =  await Story.findById(req.body.storyId);
     const index = story.pendingPageIds.indexOf(req.body.pageId);
     story.pendingPageIds.splice(index, 1);
     await story.save();
-    res.status(200).send('saved');
-}
+     res.status(204).json({
+        status: 'success',
+        data:null
+    })
+})

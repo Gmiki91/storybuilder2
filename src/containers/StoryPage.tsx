@@ -32,11 +32,11 @@ const StoryPage = () => {
   const pageType = pageStatus === 'pending' ? 'pendingPageIds' : 'pageIds';
 
   useEffect(()=>{
-    axios.get<string>(`${LOCAL_HOST}/users/`,{ headers: headers }).then(result =>setUserId(result.data))
+    axios.get(`${LOCAL_HOST}/users/`,{ headers: headers }).then(result =>setUserId(result.data.data))
   },[userId])
   //console.log('[StoryPage] renders')
   const loadStory = useCallback(async () => {
-    const story = await axios.get<Story>(`${LOCAL_HOST}/stories/${storyId}`).then(result => result.data);
+    const story = await axios.get(`${LOCAL_HOST}/stories/${storyId}`).then(result => result.data.data);
     setStory(story);
     setFormType('');
   }, [storyId]);
@@ -49,7 +49,7 @@ const StoryPage = () => {
   const loadPage = useCallback(async () => {
     if (story[pageType] && story[pageType].length > 0) {
       const id = story[pageType][currentPageIndex];
-      const page = await axios.get<Page>(`${LOCAL_HOST}/pages/${id}`).then(result => result.data);
+      const page = await axios.get(`${LOCAL_HOST}/pages/${id}`).then(result => result.data.data);
       setPage(page);
     } else {
       setPage({} as Page);
@@ -71,7 +71,7 @@ const StoryPage = () => {
       rating: [],
       status: 'Pending'
     }
-    const pageId = await axios.post(`${LOCAL_HOST}/pages/`, page, { headers: headers }).then((result) => result.data);
+    const pageId = await axios.post(`${LOCAL_HOST}/pages/`, page, { headers: headers }).then((result) => result.data.data);
     const body = { pageId: pageId, storyId: storyId };
     axios.post(`${LOCAL_HOST}/stories/pendingPage`, body).then(() => {
       loadStory();
@@ -105,7 +105,7 @@ const StoryPage = () => {
       } else if (userId === page.authorId) {
         console.log('cant rate your own page');
       } else {
-        const difference = await axios.put(`${LOCAL_HOST}/pages/rateText`, { vote, pageId: page._id }, { headers: headers }).then(result=>result.data)
+        const difference = await axios.put(`${LOCAL_HOST}/pages/rateText`, { vote, pageId: page._id }, { headers: headers }).then(result=>result.data.data)
         if(pageStatus ==='confirmed') call2 =  axios.put(`${LOCAL_HOST}/stories/rate`, { difference, storyId });
       }
       await Promise.all([call1, call2]);

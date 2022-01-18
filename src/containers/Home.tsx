@@ -43,13 +43,13 @@ const Home: React.FC = () => {
 
 
     const getFavorites = useCallback(() => {
-        axios.get(`${LOCAL_HOST}/users/favorites`, { headers }).then(result => setFavoriteIds(result.data))
+        axios.get(`${LOCAL_HOST}/users/favorites`, { headers }).then(result => setFavoriteIds(result.data.data))
     }, [])
 
     const getSortedList = useCallback(() => {
-        axios.post<Story[]>(`${LOCAL_HOST}/stories/all`, listModifications)
+        axios.post(`${LOCAL_HOST}/stories/all`, listModifications)
             .then(result => {
-                setStories(result.data);
+                setStories(result.data.data);
                 setFormType('');
             });
     }, [filters]);
@@ -72,7 +72,7 @@ const Home: React.FC = () => {
             level: form.level.value,
         }
         const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-        const storyId = await axios.post<string>(`${LOCAL_HOST}/stories/`, story, { headers }).then((result) => result.data);
+        const storyId = await axios.post(`${LOCAL_HOST}/stories/`, story, { headers }).then((result) => result.data.data);
         await axios.put(`${LOCAL_HOST}/users/`, { storyId }, { headers });
         getSortedList();
 

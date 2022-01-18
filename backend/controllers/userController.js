@@ -1,40 +1,59 @@
 const User = require('../models/user');
+const catchAsync = require('../utils/catchAsync')
 
-exports.addStoryId = async (req, res) => {
+exports.addStoryId = catchAsync(async (req, res,next) => {
     const user = await User.findById(req.body.authorId).select('+password');
     user.storyIdList.push(req.body.storyId);
     await user.save();
-    res.status(200).send('ok');
-}
-exports.addPageId = async (req, res) => {
+    res.status(204).json({
+        status: 'success',
+        data:null
+    });
+})
+
+exports.addPageId = catchAsync(async (req, res,next) => {
     const user = await User.findById(req.body.authorId).select('+password');
     user.pageIdList.push(req.body.storyId);
     await user.save();
-    res.status(200).send('ok');
-}
+    res.status(204).json({
+        status: 'success',
+        data:null
+    });
+})
 
-exports.getUserId = async (req, res) => {
+exports.getUserId = catchAsync(async (req, res,next) => {
     const user = await User.findById(req.body.authorId).select('+password');
-    res.status(200).json(user._id);
-}
+    res.status(200).json({
+        status: 'success',
+        data:user._id
+    });
+})
 
-exports.getFavorites = async (req, res) => {
+exports.getFavorites = catchAsync(async (req, res,next) => {
     const user = await User.findById(req.body.authorId).select('+password');
-    res.status(200).json(user.favoriteStoryIdList);
+    res.status(200).json({
+        status: 'success',
+        data:user.favoriteStoryIdList
+    });
+})
 
-}
-
-exports.addFavorite= async (req, res) => {
+exports.addFavorite= catchAsync(async (req, res,next) => {
     const user = await User.findById(req.body.authorId).select('+password');
     user.favoriteStoryIdList.push(req.body.storyId);
     await user.save();
-    res.status(200).json({message:'done'});
-}
+    res.status(204).json({
+        status: 'success',
+        data:null
+    });
+})
 
-exports.removeFavorite= async (req, res) => {
+exports.removeFavorite= catchAsync(async (req, res,next) => {
     const user = await User.findById(req.body.authorId).select('+password');
     const index = user.favoriteStoryIdList.indexOf(req.body.storyId);
     user.favoriteStoryIdList.splice(index,1);
     await user.save();
-    res.status(200).json({message:'done'});
-}
+    res.status(204).json({
+        status: 'success',
+        data:null
+    });
+})

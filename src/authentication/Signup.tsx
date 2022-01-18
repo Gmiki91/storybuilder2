@@ -20,14 +20,16 @@ const Signup = () => {
       email,
       password
     }).then(result => {
-      if (result.status === 200) {
-        setAuthToken(result.data.token);
+      if (result.status === 201) {
+        setAuthToken(result.data.data);
         setLoggedIn(true);
         navigate("/");
       } else {
+        console.log('oo')
         setIsError(true);
       }
     }).catch(e => {
+      console.log(e);
       setIsError(true);
     });
   }

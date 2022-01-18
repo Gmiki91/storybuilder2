@@ -1,34 +1,25 @@
 const Page = require('../models/page');
+const catchAsync = require('../utils/catchAsync')
+const AppError = require('../utils/appError')
 
-exports.getPage = async (req, res) => {
-    const page = await Page.findById(req.params.id)
+exports.getPage = catchAsync(async (req, res, next) => {
+    const page = await Page.findById(req.params.id);
+
+    if (!page) {
+        return next(new AppError(`No page found with ID ${req.params.id}`, 404))
+    }
+
     const mappedPage = {
         ...page.toObject(),
         level: mapRateNumToString(page.levels.reduce((sum, level) => sum + level.rate, 0) / page.levels.length)
-    }
-    res.status(200).json(mappedPage);
-}
+    };
+    res.status(200).json({
+        status: 'success',
+        data: mappedPage
+    })
+})
 
-exports.deletePendingPages = async (req, res) => {
-    const ids = req.params.ids.split(',');
-    await Page.deleteMany({ _id: { $in: ids } });
-    res.status(200).json({ message: 'deleted' });
-}
-
-/*exports.getPendingPages = async (req, res) => {
-    const ids = req.params.ids.split(',');
-    const pages = await Page.find({ _id: { $in: ids } });
-    const mappedPages = pages.map(page => (
-        {
-            ...page.toObject(),
-            level: mapRateNumToString(page.levels.reduce((sum, level) => sum + level.rate, 0) / page.levels.length)
-        }
-    ));
-    res.status(200).json(mappedPages);
-}*/
-
-
-exports.createPage = async (req, res) => {
+exports.createPage = catchAsync(async (req, res, next) => {
     const page = await Page.create({
         text: req.body.text,
         levels: [{ userId: '', rate: mapRateStringToNum(req.body.level) }],
@@ -37,41 +28,79 @@ exports.createPage = async (req, res) => {
         ratings: req.body.rating,
         status: req.body.status,
     });
-    res.send(page._id)
-}
+    res.status(201).json({
+        status: 'success',
+        data: page
+    })
+})
 
-exports.deletePage = async (req, res) => {
-    await Page.findByIdAndDelete(req.params.id);
-    res.send('deleted');
-}
-
-exports.rateText = async (req, res) => {
+exports.rateText = catchAsync(async (req, res, next) => {
     const page = await Page.findById(req.body.pageId);
+
+    if (!page) {
+        return next(new AppError(`No page found with ID ${req.body.pageId}`, 404))
+    }
+
     const { vote } = req.body;
     const originalVote = page.ratings.find(rate => rate.userId === req.body.authorId); // -1 0 1
-    let difference = originalVote ? vote-originalVote : vote;
-    if(vote===0){
+    let difference = originalVote ? vote - originalVote : vote;
+    if (vote === 0) {
         const index = page.ratings.indexOf(vote);
-        page.ratings.splice(index,1);
-    }else{
-    originalVote ?
-    originalVote.rate = vote
-        : page.ratings.push({ userId: req.body.authorId, rate: vote })
+        page.ratings.splice(index, 1);
+    } else {
+        originalVote ?
+            originalVote.rate = vote
+            : page.ratings.push({ userId: req.body.authorId, rate: vote })
     }
     await page.save();
-    res.status(200).json(difference);
-}
+    res.status(201).json({
+        status: 'success',
+        data: difference
+    })
+})
 
-exports.rateLevel = async (req, res) => {
+exports.rateLevel = catchAsync(async (req, res, next) => {
     const page = await Page.findById(req.body.pageId);
+
+    if (!page) {
+        return next(new AppError(`No page found with ID ${req.body.pageId}`, 404))
+    }
+
     const rate = mapRateStringToNum(req.body.rate);
     const vote = page.levels.find(level => level.userId === req.body.authorId);
     vote ?
         vote.rate = rate
         : page.levels.push({ userId: req.body.authorId, rate: rate });
     await page.save();
-    res.status(200).json('rated');
-}
+    res.status(204).json({
+        status: 'success',
+        data: null
+    });
+})
+
+exports.deletePage = catchAsync(async (req, res, next) => {
+    const page =  await Page.findByIdAndDelete(req.params.id);
+
+    if (!page) {
+        return next(new AppError(`No page found with ID ${req.params.id}`, 404))
+    }
+
+    res.status(204).json({
+        status: 'success',
+        data: null
+    });
+})
+
+
+exports.deletePendingPages = catchAsync(async (req, res, next) => {
+    const ids = req.params.ids.split(',');
+    await Page.deleteMany({ _id: { $in: ids } });
+    res.status(204).json({
+        status: 'success',
+        data: null
+    });
+})
+
 
 const mapRateNumToString = (rate) => {
     if (rate < 1.5) return 'A';
