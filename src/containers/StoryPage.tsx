@@ -131,15 +131,16 @@ const StoryPage = () => {
     if (formType === 'rateLevel') return <RateLevel level={page.level} onSubmit={handleRateLevel} onClose={() => setCurrentPageIndex(-1)} />
     return null;
   }
-
+  const pageNumber = story[pageType]?.indexOf(page._id)+1;
   const onLastPage = story[pageType]?.length > 0 ? currentPageIndex === story[pageType].length - 1 : true;
   const addPageVisible = pageStatus !== 'pending' && onLastPage && (story.openEnded || userId === story.authorId);
   const toggleStatus = pageStatus === 'confirmed' ? story.pendingPageIds && story.pendingPageIds.length > 0 && <div onClick={() => toggleItems('pending')}>
     Pending: {story.pendingPageIds.length}
-  </div> : <div onClick={() => toggleItems('confirmed')}>Return to story</div>
+  </div> : <div onClick={() => toggleItems('confirmed')}>Return to confirmed pages</div>
   const form = getForm();
   return story ? <>
     <h1>{story.title}</h1>
+    
     {formType !== '' &&
       <Modal closeModal={() => setFormType('')}>
         {form}
@@ -150,7 +151,7 @@ const StoryPage = () => {
     <br></br>
     <div className='footer'>
       {currentPageIndex > 0 && <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button>}
-      <p>{story[pageType].indexOf(page._id)+1}</p>
+      {pageNumber>0 && <p>{pageNumber}</p> }
       {!onLastPage && <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button>}
     </div>
       {addPageVisible && <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button>}

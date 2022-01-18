@@ -6,7 +6,7 @@ export const Logout = () => {
     const navigate = useNavigate();
     const { setAuthToken } = useAuth();
     useEffect(() => {
-        localStorage.clear()
+        localStorage.clear();
         setAuthToken('');
         navigate("/");
     }, []);
