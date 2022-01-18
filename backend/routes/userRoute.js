@@ -13,9 +13,14 @@ router
     .post(authController.login);
 
 router
-.route('/')
-.get(authCheck,userController.getUserId)
-.put(authCheck,userController.addStoryId)
-.post(authCheck,userController.addPageId);
+    .route('/')
+    .get(authCheck, userController.getUserId)
+    .put(authCheck, userController.addStoryId)
+    .post(authCheck, userController.addPageId);
 
+router
+    .route('/favorites')
+    .get(authCheck, userController.getFavorites)
+    .post(authCheck, userController.addFavorite)
+    .put(authCheck, userController.removeFavorite);
 module.exports = router;

@@ -21,8 +21,10 @@ type ListModifications = {
 }
 
 const Home: React.FC = () => {
-    const isAuthenticated = useAuth().authToken !== '';
+    const token = useAuth().authToken
+    const isAuthenticated = token !== '';
     const navigate = useNavigate();
+    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}`};
     console.log('[HOME] render')
     const [listModifications, setListModifications] = useState<ListModifications>({
         sortBy: 'rating',
@@ -35,6 +37,12 @@ const Home: React.FC = () => {
     const [stories, setStories] = useState<Story[]>([]);
     const [,applyFilters] = useState(false);
     const [formType, setFormType] = useState<FormTypes>('');
+    const [favoriteIds, setFavoriteIds] = useState([]);
+
+
+    useEffect(() => {
+        axios.get(`${LOCAL_HOST}/users/favorites`,{headers}).then(result=>setFavoriteIds(result.data))
+    },[token])
 
     const getSortedList = useCallback(() => {
         axios.post<Story[]>(`${LOCAL_HOST}/stories/all`, listModifications)
@@ -104,6 +112,7 @@ const Home: React.FC = () => {
         {stories.length > 0 ?
             <StoryList
                 stories={stories}
+                favoriteIds ={favoriteIds}
                 handleSortDirection={handleSortDirection}
                 handleSortBy={handleSortBy} />
             : <div>loading</div>}
