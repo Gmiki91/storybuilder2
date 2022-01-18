@@ -1,12 +1,17 @@
 import './PageCard.css'
-import { Page } from "../models/Page"
+import { Page } from "models/Page"
+
 type Props = {
   page:Page;
+  userId:string;
   toConfirm:boolean;
   onRateLevel : ()=>void;
   onRateText : (rate:number, confirming:boolean)=>void;
 }
-export const PageCard:React.FC<Props> = ({ page,toConfirm,onRateLevel,onRateText }) => {
+export const PageCard:React.FC<Props> = ({ page,userId,toConfirm,onRateLevel,onRateText }) => {
+  const ownStory = page.authorId===userId;
+  const rateByUser = page.ratings.find(rating => rating.userId === userId);
+
   const getColor = () => {
     switch (page.level) {
       case 'A': return '#8fffba';
@@ -18,7 +23,6 @@ export const PageCard:React.FC<Props> = ({ page,toConfirm,onRateLevel,onRateText
     }
   }
   const backgroundColor = getColor();
- 
   const positiveBtn = toConfirm ? 'Accept' : 'Great';
   const negativeBtn = toConfirm ? 'Decline' : 'Awful';
   const rating =  page.ratings.reduce((sum,rating)=>sum+rating.rate,0);
@@ -28,9 +32,9 @@ export const PageCard:React.FC<Props> = ({ page,toConfirm,onRateLevel,onRateText
         {page.level}</div>
       <h2 className="card-text">{page.text}</h2>
       <div className="card-rate">
-        <button onClick={()=>onRateText(1, toConfirm)}>{positiveBtn}</button>
+        <button disabled={rateByUser?.rate===1 || ownStory && !toConfirm} onClick={()=>onRateText(1, toConfirm)}>{positiveBtn}</button>
         <p>{rating}</p>
-        <button onClick={()=>onRateText(-1, toConfirm)}>{negativeBtn}</button>
+        <button disabled={rateByUser?.rate===-1 || ownStory && !toConfirm} onClick={()=>onRateText(-1, toConfirm)}>{negativeBtn}</button>
       </div>
     </div>
   </>

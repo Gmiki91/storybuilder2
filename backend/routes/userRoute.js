@@ -14,6 +14,7 @@ router
 
 router
 .route('/')
+.get(authCheck,userController.getUserId)
 .put(authCheck,userController.addStoryId)
 .post(authCheck,userController.addPageId);
 

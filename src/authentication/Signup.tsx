@@ -11,7 +11,7 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setAuthToken } = useAuth();
+  const { setAuthToken} = useAuth();
   const navigate = useNavigate();
 
   const postSignup = () => {
@@ -22,7 +22,6 @@ const Signup = () => {
     }).then(result => {
       if (result.status === 200) {
         setAuthToken(result.data.token);
-        localStorage.setItem("userId", result.data.userId);
         setLoggedIn(true);
         navigate("/");
       } else {

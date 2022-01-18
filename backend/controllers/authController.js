@@ -17,7 +17,7 @@ exports.signup = async(req,res)=>{
         writerRating: 0,
     });
     const token = signToken(user._id);
-    res.status(200).json({data: user, token:token, userId:user._id});
+    res.status(200).json({data: user, token:token});
 }
 
 exports.login= async (req, res) => {
@@ -30,8 +30,7 @@ exports.login= async (req, res) => {
     const token = signToken(user._id);
     res.status(200).json({
         status:'success',
-        token: token,
-        userId:user._id
+        token: token
     })
 }
 

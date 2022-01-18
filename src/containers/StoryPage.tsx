@@ -19,10 +19,10 @@ type Params = {
 const StoryPage = () => {
   const navigate = useNavigate();
   const isAuthenticated = useAuth().authToken !== '';
-  const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-  const userId = localStorage.getItem('userId');
+  const headers = { Authorization: `Bearer ${localStorage.getItem('token')}`};
   const { storyId, status } = useParams<Params>();
 
+  const [userId, setUserId] = useState('');
   const [story, setStory] = useState({} as Story);
   const [page, setPage] = useState({} as Page);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
@@ -30,6 +30,10 @@ const StoryPage = () => {
   const [pageStatus, setPageStatus] = useState(status);
 
   const pageType = pageStatus === 'pending' ? 'pendingPageIds' : 'pageIds';
+
+  useEffect(()=>{
+    axios.get<string>(`${LOCAL_HOST}/users/`,{ headers: headers }).then(result =>setUserId(result.data))
+  },[userId])
   //console.log('[StoryPage] renders')
   const loadStory = useCallback(async () => {
     const story = await axios.get<Story>(`${LOCAL_HOST}/stories/${storyId}`).then(result => result.data);
@@ -101,9 +105,9 @@ const StoryPage = () => {
       } else if (userId === page.authorId) {
         console.log('cant rate your own page');
       } else {
-        const newVote = await axios.put(`${LOCAL_HOST}/pages/rateText`, { rate: rate, pageId: page._id }, { headers: headers }).then(result=>result.data.newVote)
+        const newVote = await axios.put(`${LOCAL_HOST}/pages/rateText`, { rate: rate, pageId: page._id }, { headers: headers }).then(result=>result.data)
         const actualRate = newVote ? rate : rate*2  //if vote has been altered it goes i.e from -1 to +1, so +2 has to be added to overall story rating.
-        call2 =  axios.put(`${LOCAL_HOST}/stories/rate`, { actualRate, storyId });
+        if(pageStatus ==='confirmed') call2 =  axios.put(`${LOCAL_HOST}/stories/rate`, { actualRate, storyId });
       }
       await Promise.all([call1, call2]);
       loadStory();
@@ -146,6 +150,7 @@ const StoryPage = () => {
   const pageContent = page._id ? <PageCard
     key={page._id}
     page={page}
+    userId={userId}
     toConfirm={pageStatus === 'pending' && story.authorId === userId}
     onRateLevel={() => setFormType('rateLevel')}
     onRateText={handleRateText}

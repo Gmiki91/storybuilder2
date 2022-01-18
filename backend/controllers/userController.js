@@ -12,3 +12,8 @@ exports.addPageId = async (req, res) => {
     await user.save();
     res.status(200).send('ok');
 }
+
+exports.getUserId = async (req, res) => {
+    const user = await User.findById(req.body.authorId).select('+password');
+    res.status(200).json(user._id);
+}
