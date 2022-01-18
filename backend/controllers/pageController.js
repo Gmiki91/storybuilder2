@@ -11,8 +11,8 @@ exports.getPage = async (req, res) => {
 
 exports.deletePendingPages = async (req, res) => {
     const ids = req.params.ids.split(',');
-    await Page.deleteMany({_id:{$in:ids}});
-    res.status(200).json({message:'deleted'});
+    await Page.deleteMany({ _id: { $in: ids } });
+    res.status(200).json({ message: 'deleted' });
 }
 
 /*exports.getPendingPages = async (req, res) => {
@@ -49,24 +49,23 @@ exports.rateText = async (req, res) => {
     const page = await Page.findById(req.body.pageId);
     const { rate } = req.body;
     const vote = page.ratings.find(rate => rate.userId === req.body.authorId)
+    const newVote = vote ? false : true;
     vote ?
-        vote.rate = rate :
-        page.ratings.push({ userId: req.body.authorId, rate: rate })
+        vote.rate = rate
+        : page.ratings.push({ userId: req.body.authorId, rate: rate })
     await page.save();
-    res.status(200).json('rated');
+    res.status(200).json(newVote);
 }
 
 exports.rateLevel = async (req, res) => {
     const page = await Page.findById(req.body.pageId);
     const rate = mapRateStringToNum(req.body.rate);
-    const vote = page.levels.find(level => level.userId === req.body.authorId)
-    if (vote) {
+    const vote = page.levels.find(level => level.userId === req.body.authorId);
+    vote ?
         vote.rate = rate
-    } else {
-        page.levels.push({ userId: req.body.authorId, rate: rate });
-    }
+        : page.levels.push({ userId: req.body.authorId, rate: rate });
     await page.save();
-    res.status(200).json('ok');
+    res.status(200).json('rated');
 }
 
 const mapRateNumToString = (rate) => {

@@ -21,7 +21,7 @@ export const PageCard:React.FC<Props> = ({ page,toConfirm,onRateLevel,onRateText
  
   const positiveBtn = toConfirm ? 'Accept' : 'Great';
   const negativeBtn = toConfirm ? 'Decline' : 'Awful';
-
+  const rating =  page.ratings.reduce((sum,rating)=>sum+rating.rate,0);
   return <>
     <div className="card">
       <div className="card-level" style={{ backgroundColor: backgroundColor }} onClick={onRateLevel}>
@@ -29,6 +29,7 @@ export const PageCard:React.FC<Props> = ({ page,toConfirm,onRateLevel,onRateText
       <h2 className="card-text">{page.text}</h2>
       <div className="card-rate">
         <button onClick={()=>onRateText(1, toConfirm)}>{positiveBtn}</button>
+        <p>{rating}</p>
         <button onClick={()=>onRateText(-1, toConfirm)}>{negativeBtn}</button>
       </div>
     </div>

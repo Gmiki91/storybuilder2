@@ -24,7 +24,6 @@ exports.login= async (req, res) => {
     const {userInput, password} = req.body;
     const query = userInput.includes('@') ? {email:userInput} : {name:userInput};
     const user = await User.findOne(query).select('+password');
-    console.log(user);
     if(!user || !(await user.correctPassword(password, user.password))){
         return res.status(403).send('bukó');
     }

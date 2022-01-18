@@ -49,7 +49,7 @@ exports.deleteStory = (req, res) => {
 
 exports.rateStory = async (req, res) => {
     const story = await Story.findById(req.body.storyId);
-    story.rating += req.body.rate;
+    story.rating += req.body.actualRate;
     await story.save();
     res.status(200).send('ok');
 }

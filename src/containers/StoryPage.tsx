@@ -101,8 +101,9 @@ const StoryPage = () => {
       } else if (userId === page.authorId) {
         console.log('cant rate your own page');
       } else {
-        call1 = await axios.put(`${LOCAL_HOST}/pages/rateText`, { rate: rate, pageId: page._id }, { headers: headers })
-        call2 = await axios.put(`${LOCAL_HOST}/stories/rate`, { rate, storyId });
+        const newVote = await axios.put(`${LOCAL_HOST}/pages/rateText`, { rate: rate, pageId: page._id }, { headers: headers }).then(result=>result.data.newVote)
+        const actualRate = newVote ? rate : rate*2  //if vote has been altered it goes i.e from -1 to +1, so +2 has to be added to overall story rating.
+        call2 =  axios.put(`${LOCAL_HOST}/stories/rate`, { actualRate, storyId });
       }
       await Promise.all([call1, call2]);
       loadStory();
