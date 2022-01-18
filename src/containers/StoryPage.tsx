@@ -47,7 +47,7 @@ const StoryPage = () => {
       const id = story[pageType][currentPageIndex];
       const page = await axios.get<Page>(`${LOCAL_HOST}/pages/${id}`).then(result => result.data);
       setPage(page);
-    }else{
+    } else {
       setPage({} as Page);
     }
   }, [currentPageIndex, story, pageType])
@@ -74,29 +74,38 @@ const StoryPage = () => {
     });
   }
 
+  const removePendingPages = () => {
+    const index = story.pendingPageIds.indexOf(page._id)
+    const idsToDelete = [...story.pendingPageIds];
+    idsToDelete.splice(index, 1);
+    axios.delete(`${LOCAL_HOST}/pages/pending/${idsToDelete.join(',')}`)
+  }
+
   const handleRateText = async (rate: number, confirming: boolean) => {
     if (isAuthenticated) {
-        let call1;
-        let call2;
-        if (confirming) {
-          const body = { pageId: page._id, storyId: storyId };
-          if (rate === -1) { //remove Page
-            call1 = axios.delete(`${LOCAL_HOST}/pages/${page._id}`)
-            call2 = axios.put(`${LOCAL_HOST}/stories/pendingPage`, body)
-          } else { //add Page
-            call1 = axios.post(`${LOCAL_HOST}/users/`, { pageId: page._id }, { headers });
-            call2 = axios.put(`${LOCAL_HOST}/stories/page`, body);
-          }
-        } else  if (userId === story.authorId) {
-          console.log('cant rate your own story');
-        } else if (userId === page.authorId) {
-          console.log('cant rate your own page');
-        } else {
-          call1 = await axios.put(`${LOCAL_HOST}/pages/rateText`, { rate: rate, pageId: page._id }, { headers: headers })
-          call2 = await axios.put(`${LOCAL_HOST}/stories/rate`, { rate, storyId });
+      let call1;
+      let call2;
+      if (confirming) {
+        const body = { pageId: page._id, storyId: storyId };
+        if (rate === -1) { //remove Page
+          call1 = axios.delete(`${LOCAL_HOST}/pages/${page._id}`) //remove page document
+          call2 = axios.put(`${LOCAL_HOST}/stories/pendingPage`, body) //remove pageId from story
+        } else { //add Page
+          setPageStatus("confirmed");
+          call1 = axios.post(`${LOCAL_HOST}/users/`, { pageId: page._id }, { headers }); //add page to user document
+          call2 = axios.put(`${LOCAL_HOST}/stories/page`, body); //add page to story 
+          story.pendingPageIds.length > 1 && removePendingPages();  //remove all other pending pages
         }
-        await Promise.all([call1, call2]);
-        loadStory();
+      } else if (userId === story.authorId) {
+        console.log('cant rate your own story');
+      } else if (userId === page.authorId) {
+        console.log('cant rate your own page');
+      } else {
+        call1 = await axios.put(`${LOCAL_HOST}/pages/rateText`, { rate: rate, pageId: page._id }, { headers: headers })
+        call2 = await axios.put(`${LOCAL_HOST}/stories/rate`, { rate, storyId });
+      }
+      await Promise.all([call1, call2]);
+      loadStory();
     } else {
       navigate(`/login`);
     }
@@ -113,14 +122,6 @@ const StoryPage = () => {
     }
   }
 
-  const pageContent = page._id ? <PageCard
-    key={page._id}
-    page={page}
-    toConfirm={pageStatus === 'pending' && story.authorId === userId }
-    onRateLevel={() => setFormType('rateLevel')}
-    onRateText={handleRateText}
-  /> : <div>No pages yet </div>
-
   const toggleItems = (status: 'pending' | 'confirmed') => {
     setCurrentPageIndex(0);
     setPageStatus(status);
@@ -131,16 +132,27 @@ const StoryPage = () => {
     if (formType === 'rateLevel') return <RateLevel level={page.level} onSubmit={handleRateLevel} onClose={() => setCurrentPageIndex(-1)} />
     return null;
   }
-  const pageNumber = story[pageType]?.indexOf(page._id)+1;
+
+  const pageNumber = story[pageType]?.indexOf(page._id) + 1;
   const onLastPage = story[pageType]?.length > 0 ? currentPageIndex === story[pageType].length - 1 : true;
   const addPageVisible = pageStatus !== 'pending' && onLastPage && (story.openEnded || userId === story.authorId);
   const toggleStatus = pageStatus === 'confirmed' ? story.pendingPageIds && story.pendingPageIds.length > 0 && <div onClick={() => toggleItems('pending')}>
     Pending: {story.pendingPageIds.length}
   </div> : <div onClick={() => toggleItems('confirmed')}>Return to confirmed pages</div>
+
   const form = getForm();
+
+  const pageContent = page._id ? <PageCard
+    key={page._id}
+    page={page}
+    toConfirm={pageStatus === 'pending' && story.authorId === userId}
+    onRateLevel={() => setFormType('rateLevel')}
+    onRateText={handleRateText}
+  /> : <div>No pages yet </div>
+
   return story ? <>
     <h1>{story.title}</h1>
-    
+
     {formType !== '' &&
       <Modal closeModal={() => setFormType('')}>
         {form}
@@ -151,10 +163,10 @@ const StoryPage = () => {
     <br></br>
     <div className='footer'>
       {currentPageIndex > 0 && <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button>}
-      {pageNumber>0 && <p>{pageNumber}</p> }
+      {pageNumber > 0 && <p>{pageNumber} / {story[pageType].length}</p>}
       {!onLastPage && <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button>}
     </div>
-      {addPageVisible && <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button>}
+    {addPageVisible && <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button>}
     {toggleStatus}
   </>
     : <div>loading</div>

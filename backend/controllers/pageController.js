@@ -9,7 +9,13 @@ exports.getPage = async (req, res) => {
     res.status(200).json(mappedPage);
 }
 
-exports.getPendingPages = async (req, res) => {
+exports.deletePendingPages = async (req, res) => {
+    const ids = req.params.ids.split(',');
+    await Page.deleteMany({_id:{$in:ids}});
+    res.status(200).json({message:'deleted'});
+}
+
+/*exports.getPendingPages = async (req, res) => {
     const ids = req.params.ids.split(',');
     const pages = await Page.find({ _id: { $in: ids } });
     const mappedPages = pages.map(page => (
@@ -19,7 +25,7 @@ exports.getPendingPages = async (req, res) => {
         }
     ));
     res.status(200).json(mappedPages);
-}
+}*/
 
 
 exports.createPage = async (req, res) => {

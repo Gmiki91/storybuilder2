@@ -9,8 +9,9 @@ router
 .delete(pageController.deletePage)
 
 router.
-route('/pendig/:ids')
-.get(pageController.getPendingPages)
+route('/pending/:ids')
+//.get(pageController.getPendingPages)
+.delete(pageController.deletePendingPages)
 
 router
 .route('/')
