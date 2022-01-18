@@ -1,5 +1,3 @@
-import axios from "axios"
-import { LOCAL_HOST } from "constants/constants"
 import { Story } from "models/Story"
 
 type Props = {
@@ -7,16 +5,11 @@ type Props = {
     favorite: boolean,
     onClick: () => void,
     handlePendingList: () => void,
+    removeFromFavorites:()=>void,
+    addToFavorites:()=>void
 }
 
-export const StoryCard: React.FC<Props> = ({ story, favorite, onClick, handlePendingList }) => {
-    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-    const addToFavorites = () => {
-        axios.post(`${LOCAL_HOST}/users/favorites`, { storyId: story._id }, { headers })
-    }
-    const removeFromFavorites = () =>{
-        axios.put(`${LOCAL_HOST}/users/favorites`, { storyId: story._id }, { headers })
-    }
+export const StoryCard: React.FC<Props> = ({ story, favorite, onClick, handlePendingList, removeFromFavorites, addToFavorites }) => {
     return <div>
         <div onClick={onClick}>
             {story.title} {story.language}:{story.level} {story.updatedAt.toString().slice(14, 19)} {story.rating}

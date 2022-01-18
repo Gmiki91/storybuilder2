@@ -24,7 +24,7 @@ const Home: React.FC = () => {
     const token = useAuth().authToken
     const isAuthenticated = token !== '';
     const navigate = useNavigate();
-    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}`};
+    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
     console.log('[HOME] render')
     const [listModifications, setListModifications] = useState<ListModifications>({
         sortBy: 'rating',
@@ -35,14 +35,16 @@ const Home: React.FC = () => {
         openEnded: 'both'
     });
     const [stories, setStories] = useState<Story[]>([]);
-    const [,applyFilters] = useState(false);
+    const [filters, applyFilters] = useState(false);
     const [formType, setFormType] = useState<FormTypes>('');
     const [favoriteIds, setFavoriteIds] = useState([]);
 
 
-    useEffect(() => {
-        axios.get(`${LOCAL_HOST}/users/favorites`,{headers}).then(result=>setFavoriteIds(result.data))
-    },[token])
+
+
+    const getFavorites = useCallback(() => {
+        axios.get(`${LOCAL_HOST}/users/favorites`, { headers }).then(result => setFavoriteIds(result.data))
+    }, [])
 
     const getSortedList = useCallback(() => {
         axios.post<Story[]>(`${LOCAL_HOST}/stories/all`, listModifications)
@@ -50,11 +52,15 @@ const Home: React.FC = () => {
                 setStories(result.data);
                 setFormType('');
             });
-    }, [ listModifications]);
+    }, [filters]);
 
     useEffect(() => {
         getSortedList();
     }, [getSortedList]);
+
+    useEffect(() => {
+        getFavorites()
+    }, [getFavorites]);
 
     const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -80,6 +86,13 @@ const Home: React.FC = () => {
     const handleSortBy = (property: string) => {
         setListModifications(prevState => ({ ...prevState, sortBy: property }));
         applyFilters(prevState => !prevState);
+    }
+
+    const addToFavorites = (storyId: string) => {
+        axios.post(`${LOCAL_HOST}/users/favorites`, { storyId }, { headers }).then(()=>getFavorites());
+    }
+    const removeFromFavorites = (storyId: string) => {
+        axios.put(`${LOCAL_HOST}/users/favorites`, { storyId }, { headers }).then(()=>getFavorites());
     }
 
     const getForm = () => {
@@ -111,8 +124,10 @@ const Home: React.FC = () => {
         <br></br>
         {stories.length > 0 ?
             <StoryList
+                addToFavorites={addToFavorites}
+                removeFromFavorites={removeFromFavorites}
                 stories={stories}
-                favoriteIds ={favoriteIds}
+                favoriteIds={favoriteIds}
                 handleSortDirection={handleSortDirection}
                 handleSortBy={handleSortBy} />
             : <div>loading</div>}
