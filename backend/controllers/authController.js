@@ -1,11 +1,12 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const catchAsync = require('../utils/catchAsync')
-const signToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET,  {
-        expiresIn: process.env.JWT_EXPIRATION
-      });
-}
+
+const signToken = id => jwt.sign(
+    {id} ,
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRATION }
+);
 
 exports.signup = catchAsync(async (req, res, next) => {
     const user = await User.create({
@@ -30,7 +31,7 @@ exports.login = catchAsync(async (req, res, next) => {
     const query = userInput.includes('@') ? { email: userInput } : { name: userInput };
     const user = await User.findOne(query).select('+password');
     if (!user || !(await user.correctPassword(password, user.password))) {
-        return res.status(403).send('bukó');
+        return res.status(403).send('Incorrect password');
     }
     const token = signToken(user._id);
     res.status(200).json({

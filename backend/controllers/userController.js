@@ -2,7 +2,7 @@ const User = require('../models/user');
 const catchAsync = require('../utils/catchAsync')
 
 exports.addStoryId = catchAsync(async (req, res, next) => {
-    const user = await User.findById(req.body.authorId).select('+password');
+    const user = await User.findById(req.body.user._id).select('+password');
     user.storyIdList.push(req.body.storyId);
     await user.save();
     res.status(204).json({
@@ -12,7 +12,7 @@ exports.addStoryId = catchAsync(async (req, res, next) => {
 })
 
 exports.addPageId = catchAsync(async (req, res, next) => {
-    const user = await User.findById(req.body.authorId).select('+password');
+    const user = await User.findById(req.body.user._id).select('+password');
     user.pageIdList.push(req.body.storyId);
     await user.save();
     res.status(204).json({
@@ -24,13 +24,13 @@ exports.addPageId = catchAsync(async (req, res, next) => {
 exports.getUserId = (req, res) => {
     res.status(200).json({
         status: 'success',
-        data: req.body.authorId
+        data: req.body.user._id
     });
 }
 
 
     exports.getFavorites = catchAsync(async (req, res, next) => {
-        const user = await User.findById(req.body.authorId).select('+password');
+        const user = await User.findById(req.body.user._id).select('+password');
         res.status(200).json({
             status: 'success',
             data: user.favoriteStoryIdList
@@ -38,7 +38,7 @@ exports.getUserId = (req, res) => {
     })
 
     exports.addFavorite = catchAsync(async (req, res, next) => {
-        const user = await User.findById(req.body.authorId).select('+password');
+        const user = await User.findById(req.body.user._id).select('+password');
         user.favoriteStoryIdList.push(req.body.storyId);
         await user.save();
         res.status(204).json({
@@ -48,7 +48,7 @@ exports.getUserId = (req, res) => {
     })
 
     exports.removeFavorite = catchAsync(async (req, res, next) => {
-        const user = await User.findById(req.body.authorId).select('+password');
+        const user = await User.findById(req.body.user._id).select('+password');
         const index = user.favoriteStoryIdList.indexOf(req.body.storyId);
         user.favoriteStoryIdList.splice(index, 1);
         await user.save();

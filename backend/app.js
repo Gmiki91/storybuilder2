@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 process.on('uncaughtException', err => {
     console.log('Uncaught exception. Shutting down...')
-    console.log(err.name, err.message);
+    console.log(err.name, err.message, err.stack);
     process.exit(1);
 })
 
@@ -39,7 +39,7 @@ mongoose.connect(
 
 process.on('unhandledRejection', err => {
     console.log('Unhandled rejection. Shutting down...')
-    console.log(err.name, err.message);
+    console.log(err.name, err.message, err.stack);
     server.close(() => {
         process.exit(1);
     });

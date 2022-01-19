@@ -11,11 +11,11 @@ import { Logout } from 'authentication/Logout';
 
 const App = () => {
   const token = localStorage.getItem("token");
-  const existingToken = token ? JSON.parse(token) : '';
+  const existingToken = token ? token : '';
   const [authToken, setAuthToken] = useState(existingToken);
 
   const setToken = (data: React.SetStateAction<string>) => {
-    localStorage.setItem("token", JSON.stringify(data));
+    localStorage.setItem("token", data.toString());
     setAuthToken(data);
   }
 

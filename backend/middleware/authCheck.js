@@ -13,7 +13,7 @@ module.exports = catchAsync(async(req, res, next)=> {
         return next(new AppError('You must be logged in to get access!', 401));
     }
 
-    const decoded = await Promise.promisify(jwt.verify)(token,process.env.JWT_SECRET);
+    const decoded = jwt.verify(token,process.env.JWT_SECRET);
 
     const user = await User.findById(decoded.id);
     if(!user){

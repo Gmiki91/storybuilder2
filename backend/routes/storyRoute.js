@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const storyController, {ownStoryCheck} = require('../controllers/storyController');
+const storyController = require('../controllers/storyController');
 const authCheck = require('../middleware/authCheck');
 
 router
@@ -13,17 +13,17 @@ router
 
 router
     .route('/page')
-    .put(authCheck, ownStoryCheck, storyController.addPage)
+    .put(authCheck, storyController.ownStoryCheck, storyController.addPage)
 
 router
     .route('/pendingPage')
     .post(storyController.addPendingPage)
-    .put(authCheck,ownStoryCheck,storyController.removePendingPage)
+    .put(authCheck, storyController.ownStoryCheck, storyController.removePendingPage)
 
 router
     .route('/:id')
     .get(storyController.getStory)
-   // .delete(authCheck,storyController.deleteStory);
+// .delete(authCheck,storyController.deleteStory);
 
 router
     .route('/rate')

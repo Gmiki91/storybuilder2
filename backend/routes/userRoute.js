@@ -23,4 +23,5 @@ router
     .get(authCheck, userController.getFavorites)
     .post(authCheck, userController.addFavorite)
     .put(authCheck, userController.removeFavorite);
+    
 module.exports = router;

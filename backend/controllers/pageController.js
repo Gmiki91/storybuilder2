@@ -74,12 +74,11 @@ exports.rateLevel = catchAsync(async (req, res, next) => {
 })
 
 exports.deletePage = catchAsync(async (req, res, next) => {
-
-    if(req.body.user.storyIdList.indexOf(page.storyIdList)===-1) return next(new AppError('You can only delete pages from your own story.',401))
+    const page =  await Page.findById(req.params.id);
+    if (!page) return next(new AppError(`No page found with ID ${req.params.id}.`, 404));
+    if(req.body.user.storyIdList.indexOf(page.storyId)===-1) return next(new AppError('You can only delete pages from your own story.',401));
     
-    const page =  await Page.findByIdAndDelete(req.params.id);
-
-    if (!page) return next(new AppError(`No page found with ID ${req.params.id}.`, 404))
+    await Page.findByIdAndDelete(req.params.id);
     
     res.status(204).json({
         status: 'success',
@@ -91,7 +90,7 @@ exports.deletePage = catchAsync(async (req, res, next) => {
 exports.deletePendingPages = catchAsync(async (req, res, next) => {
     const ids = req.params.ids.split(',');
     const pages = await Page.find({ _id: { $in: ids } });
-    const otherPage = pages.find(page=>req.body.user.storyIdList.indexOf(page.storyId)>-1);
+    const otherPage = pages.find(page=>req.body.user.storyIdList.indexOf(page.storyId)===-1);
 
     if(otherPage) return next(new AppError(`Page ${otherPage._id} is not yours to delete.`));
     

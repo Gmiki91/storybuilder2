@@ -39,12 +39,10 @@ const Home: React.FC = () => {
     const [formType, setFormType] = useState<FormTypes>('');
     const [favoriteIds, setFavoriteIds] = useState([]);
 
-
-
-
     const getFavorites = useCallback(() => {
+        if(isAuthenticated)
         axios.get(`${LOCAL_HOST}/users/favorites`, { headers }).then(result => setFavoriteIds(result.data.data))
-    }, [])
+    }, [isAuthenticated])
 
     const getSortedList = useCallback(() => {
         axios.post(`${LOCAL_HOST}/stories/all`, listModifications)
