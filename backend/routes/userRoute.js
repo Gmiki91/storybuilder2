@@ -4,13 +4,11 @@ const authController = require('../controllers/authController');
 const userController = require('../controllers/userController');
 const authCheck = require('../middleware/authCheck');
 
-router
-    .route('/signup')
-    .post(authController.signup);
+router.post('/signup',authController.signup);
+router.post('/login',authController.login);
 
-router
-    .route('/login')
-    .post(authController.login);
+router.post('/forgotPassword',authController.forgotPassword);
+router.patch('/resetPassword/:resetToken',authController.resetPassword);
 
 router
     .route('/')

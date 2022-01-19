@@ -8,21 +8,10 @@ router
     .get(pageController.getPage)
     .delete(authCheck, pageController.deletePage)
 
-router.
-    route('/pending/:ids')
-    .delete(authCheck, pageController.deletePendingPages)
-
-router
-    .route('/')
-    .post(authCheck, pageController.createPage);
-
-router
-    .route('/rateLevel')
-    .put(authCheck, pageController.rateLevel);
-
-router
-    .route('/rateText')
-    .put(authCheck, pageController.rateText);
+router.delete('/pending/:ids',authCheck, pageController.deletePendingPages)
+router.post('/',authCheck, pageController.createPage);
+router.put('/rateLevel',authCheck, pageController.rateLevel);
+router.put('/rateText',authCheck, pageController.rateText);
 
 
 module.exports = router;
