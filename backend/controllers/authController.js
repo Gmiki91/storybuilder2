@@ -2,7 +2,9 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const catchAsync = require('../utils/catchAsync')
 const signToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET);
+    return jwt.sign({ id }, process.env.JWT_SECRET,  {
+        expiresIn: process.env.JWT_EXPIRATION
+      });
 }
 
 exports.signup = catchAsync(async (req, res, next) => {
@@ -36,7 +38,3 @@ exports.login = catchAsync(async (req, res, next) => {
         data: token
     })
 })
-
-exports.protect = async (req, res, next) => {
-    next();
-}

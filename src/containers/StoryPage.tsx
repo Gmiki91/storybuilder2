@@ -67,7 +67,7 @@ const StoryPage = () => {
       text: form.text.value,
       level: form.level.value,
       language: story.language,
-      authorId: story.authorId,
+      storyId: story._id,
       rating: [],
       status: 'Pending'
     }

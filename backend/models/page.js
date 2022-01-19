@@ -5,6 +5,7 @@ const pageSchema = mongoose.Schema({
     language: String,
     levels:  [{ userId: String, rate: Number }],
     authorId: String,
+    storyId:String,
     ratings: [{ userId: String, rate: Number }],
     status: 'Pending' | 'Confirmed',
 }, { collection: 'pages' });

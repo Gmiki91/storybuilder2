@@ -10,7 +10,7 @@ process.on('uncaughtException', err => {
 const cors = require('cors');
 const app = express();
 
-const port = process.env.PORT || 3030;
+const port = process.env.EXPRESS_PORT || 3030;
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController')
 const storyRoute = require('./routes/storyRoute');

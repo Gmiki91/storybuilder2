@@ -1,14 +1,12 @@
 const Page = require('../models/page');
-const catchAsync = require('../utils/catchAsync')
-const AppError = require('../utils/appError')
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 exports.getPage = catchAsync(async (req, res, next) => {
     const page = await Page.findById(req.params.id);
 
-    if (!page) {
-        return next(new AppError(`No page found with ID ${req.params.id}`, 404))
-    }
-
+    if (!page) return next(new AppError(`No page found with ID ${req.params.id}`, 404))
+    
     const mappedPage = {
         ...page.toObject(),
         level: mapRateNumToString(page.levels.reduce((sum, level) => sum + level.rate, 0) / page.levels.length)
@@ -24,7 +22,8 @@ exports.createPage = catchAsync(async (req, res, next) => {
         text: req.body.text,
         levels: [{ userId: '', rate: mapRateStringToNum(req.body.level) }],
         language: req.body.language,
-        authorId: req.body.authorId,
+        authorId: req.body.user._id,
+        storyId:req.body.storyId,
         ratings: req.body.rating,
         status: req.body.status,
     });
@@ -37,12 +36,10 @@ exports.createPage = catchAsync(async (req, res, next) => {
 exports.rateText = catchAsync(async (req, res, next) => {
     const page = await Page.findById(req.body.pageId);
 
-    if (!page) {
-        return next(new AppError(`No page found with ID ${req.body.pageId}`, 404))
-    }
+    if (!page) return next(new AppError(`No page found with ID ${req.body.pageId}`, 404))
 
     const { vote } = req.body;
-    const originalVote = page.ratings.find(rate => rate.userId === req.body.authorId); // -1 0 1
+    const originalVote = page.ratings.find(rate => rate.userId === req.body.user._id);
     let difference = originalVote ? vote - originalVote : vote;
     if (vote === 0) {
         const index = page.ratings.indexOf(vote);
@@ -50,7 +47,7 @@ exports.rateText = catchAsync(async (req, res, next) => {
     } else {
         originalVote ?
             originalVote.rate = vote
-            : page.ratings.push({ userId: req.body.authorId, rate: vote })
+            : page.ratings.push({ userId: req.body.user._id, rate: vote })
     }
     await page.save();
     res.status(201).json({
@@ -62,15 +59,13 @@ exports.rateText = catchAsync(async (req, res, next) => {
 exports.rateLevel = catchAsync(async (req, res, next) => {
     const page = await Page.findById(req.body.pageId);
 
-    if (!page) {
-        return next(new AppError(`No page found with ID ${req.body.pageId}`, 404))
-    }
+    if (!page) return next(new AppError(`No page found with ID ${req.body.pageId}`, 404))
 
     const rate = mapRateStringToNum(req.body.rate);
-    const vote = page.levels.find(level => level.userId === req.body.authorId);
+    const vote = page.levels.find(level => level.userId === req.body.user._id);
     vote ?
         vote.rate = rate
-        : page.levels.push({ userId: req.body.authorId, rate: rate });
+        : page.levels.push({ userId: req.body.user._id, rate: rate });
     await page.save();
     res.status(204).json({
         status: 'success',
@@ -79,12 +74,13 @@ exports.rateLevel = catchAsync(async (req, res, next) => {
 })
 
 exports.deletePage = catchAsync(async (req, res, next) => {
+
+    if(req.body.user.storyIdList.indexOf(page.storyIdList)===-1) return next(new AppError('You can only delete pages from your own story.',401))
+    
     const page =  await Page.findByIdAndDelete(req.params.id);
 
-    if (!page) {
-        return next(new AppError(`No page found with ID ${req.params.id}`, 404))
-    }
-
+    if (!page) return next(new AppError(`No page found with ID ${req.params.id}.`, 404))
+    
     res.status(204).json({
         status: 'success',
         data: null
@@ -94,6 +90,11 @@ exports.deletePage = catchAsync(async (req, res, next) => {
 
 exports.deletePendingPages = catchAsync(async (req, res, next) => {
     const ids = req.params.ids.split(',');
+    const pages = await Page.find({ _id: { $in: ids } });
+    const otherPage = pages.find(page=>req.body.user.storyIdList.indexOf(page.storyId)>-1);
+
+    if(otherPage) return next(new AppError(`Page ${otherPage._id} is not yours to delete.`));
+    
     await Page.deleteMany({ _id: { $in: ids } });
     res.status(204).json({
         status: 'success',

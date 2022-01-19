@@ -4,26 +4,25 @@ const pageController = require('../controllers/pageController');
 const authCheck = require('../middleware/authCheck');
 
 router
-.route('/:id')
-.get(pageController.getPage)
-.delete(pageController.deletePage)
+    .route('/:id')
+    .get(pageController.getPage)
+    .delete(authCheck, pageController.deletePage)
 
 router.
-route('/pending/:ids')
-//.get(pageController.getPendingPages)
-.delete(pageController.deletePendingPages)
+    route('/pending/:ids')
+    .delete(authCheck, pageController.deletePendingPages)
 
 router
-.route('/')
-.post(authCheck,pageController.createPage);
+    .route('/')
+    .post(authCheck, pageController.createPage);
 
 router
-.route('/rateLevel')
-.put(authCheck,pageController.rateLevel);
+    .route('/rateLevel')
+    .put(authCheck, pageController.rateLevel);
 
 router
-.route('/rateText')
-.put(authCheck,pageController.rateText);
+    .route('/rateText')
+    .put(authCheck, pageController.rateText);
 
 
 module.exports = router;
