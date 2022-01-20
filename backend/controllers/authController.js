@@ -44,12 +44,13 @@ exports.login = catchAsync(async (req, res, next) => {
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email });
-    if (!user) return next(new AppError(`No user found with email ${req.body.email}.`));
+    if (!user) return next(new AppError(`No user found with email ${req.body.email}.`,400));
 
     const resetToken = user.createPasswordResetToken();
     await user.save();
 
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+    //const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+    const resetUrl = `http://localhost:3000/resetPassword/${resetToken}`;
     const message = `Click the link to reset your password: ${resetUrl}`;
     try {
         await sendEmail({
@@ -59,7 +60,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
         });
         res.status(200).json({
             status: 'success',
-            message: 'Token sent to email!'
+            message: 'Please check your email for the password reset link!'
         })
     } catch (err) {
         user.createPasswordResetToken = undefined;
@@ -81,8 +82,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     user.passwordResetToken=undefined;
     user.passwordResetExpires=undefined;
     await user.save();
-    
-    
     
     const token = signToken(user._id);
     res.status(201).json({

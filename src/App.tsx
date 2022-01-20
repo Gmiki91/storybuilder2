@@ -1,13 +1,18 @@
 import 'App.css';
+import { useState } from 'react';
 import { Routes, Route, NavLink, BrowserRouter } from "react-router-dom";
+
 import Home from 'containers/Home';
 import Stats from 'containers/Stats';
 import StoryPage from 'containers/StoryPage';
-import { AuthContext } from 'context/AuthContext'
+
 import Login from 'authentication/Login';
+import Logout  from 'authentication/Logout';
 import Signup from 'authentication/Signup';
-import { useState } from 'react';
-import { Logout } from 'authentication/Logout';
+import ForgotPassword from 'authentication/ForgotPassword';
+import ResetPassword from 'authentication/ResetPassword';
+
+import { AuthContext } from 'context/AuthContext'
 
 const App = () => {
   const token = localStorage.getItem("token");
@@ -38,6 +43,9 @@ const App = () => {
             <Route path='/signup' element={<Signup />} />
             <Route path='/:storyId/:status' element={<StoryPage />} />
             <Route path='/stats' element={<Stats />} />
+            <Route path='/forgotPassword' element={<ForgotPassword />} />
+            <Route path='/resetPassword/:token' element={<ResetPassword />} />
+
           </Routes>
         </BrowserRouter>
       </AuthContext.Provider>

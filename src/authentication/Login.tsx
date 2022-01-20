@@ -53,6 +53,7 @@ const Login = () => {
         />
          <Button onClick={postLogin}>Log In</Button>
       </Form>
+      <Link to="/forgotPassword">Forgot your password?</Link>
       <Link to="/signup">Don't have an account?</Link>
       { isError &&<div>The username or password provided were incorrect!</div> }
     </Card>
