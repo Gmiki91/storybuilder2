@@ -4,6 +4,5 @@ export type Page = {
     language: string,
     level: string,
     authorId: string,
-    ratings: [{ userId: string, rate: number }],
-    status: 'Pending' | 'Confirmed'
+    ratings: [{ userId: string, rate: number }]
 }

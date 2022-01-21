@@ -6,7 +6,7 @@ exports.getPage = catchAsync(async (req, res, next) => {
     const page = await Page.findById(req.params.id);
 
     if (!page) return next(new AppError(`No page found with ID ${req.params.id}`, 404))
-    
+
     const mappedPage = {
         ...page.toObject(),
         level: mapRateNumToString(page.levels.reduce((sum, level) => sum + level.rate, 0) / page.levels.length)
@@ -23,13 +23,12 @@ exports.createPage = catchAsync(async (req, res, next) => {
         levels: [{ userId: '', rate: mapRateStringToNum(req.body.level) }],
         language: req.body.language,
         authorId: req.body.user._id,
-        storyId:req.body.storyId,
-        ratings: req.body.rating,
-        status: req.body.status,
+        storyId: req.body.storyId,
+        ratings: req.body.rating
     });
     res.status(201).json({
         status: 'success',
-        data: page
+        pageId:page._id
     })
 })
 
@@ -52,7 +51,8 @@ exports.rateText = catchAsync(async (req, res, next) => {
     await page.save();
     res.status(201).json({
         status: 'success',
-        data: difference
+        newPage:page,
+        difference,
     })
 })
 
@@ -66,20 +66,20 @@ exports.rateLevel = catchAsync(async (req, res, next) => {
     vote ?
         vote.rate = rate
         : page.levels.push({ userId: req.body.user._id, rate: rate });
-    await page.save();
+    const updatedPage = await page.save();
     res.status(204).json({
         status: 'success',
-        data: null
+        updatedPage
     });
 })
 
 exports.deletePage = catchAsync(async (req, res, next) => {
-    const page =  await Page.findById(req.params.id);
+    const page = await Page.findById(req.params.id);
     if (!page) return next(new AppError(`No page found with ID ${req.params.id}.`, 404));
-    if(req.body.user._id!==page.authorId) return next(new AppError('You can only delete pages from your own story.',401));
-    
+    if (req.body.user._id.toString() !== page.authorId) return next(new AppError('You can only delete pages from your own story.', 401));
+
     await Page.findByIdAndDelete(req.params.id);
-    
+
     res.status(204).json({
         status: 'success',
         data: null
@@ -90,10 +90,10 @@ exports.deletePage = catchAsync(async (req, res, next) => {
 exports.deletePendingPages = catchAsync(async (req, res, next) => {
     const ids = req.params.ids.split(',');
     const pages = await Page.find({ _id: { $in: ids } });
-    const otherPage = pages.find(page=>req.body.user._id!==page.authorId);
+    const otherPage = pages.find(page => req.body.user._id.toString() !== page.authorId);
 
-    if(otherPage) return next(new AppError(`Page ${otherPage._id} is not yours to delete.`));
-    
+    if (otherPage) return next(new AppError(`Page ${otherPage._id} is not yours to delete.`));
+
     await Page.deleteMany({ _id: { $in: ids } });
     res.status(204).json({
         status: 'success',

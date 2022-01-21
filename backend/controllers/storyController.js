@@ -25,7 +25,7 @@ exports.getStory = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.params.id);
     res.status(200).json({
         status: 'success',
-        data: story
+        story
     })
 })
 
@@ -67,9 +67,9 @@ exports.rateStory = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.body.storyId);
     story.rating += req.body.difference;
     await story.save();
-    res.status(204).json({
+    res.status(200).json({
         status: 'success',
-        data: null
+        story
     })
 })
 
@@ -78,9 +78,9 @@ exports.addPage = catchAsync(async (req, res, next) => {
     story.pendingPageIds = []; //removing all pending pages;
     story.pageIds.push(req.body.pageId);
     await story.save();
-    res.status(204).json({
+    res.status(200).json({
         status: 'success',
-        data: null
+        story
     })
 })
 
@@ -88,9 +88,9 @@ exports.addPendingPage = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.body.storyId);
     story.pendingPageIds.push(req.body.pageId);
     await story.save();
-    res.status(204).json({
+    res.status(200).json({
         status: 'success',
-        data: null
+        story
     })
 })
 
@@ -99,9 +99,9 @@ exports.removePendingPage = catchAsync(async (req, res, next) => {
     const index = story.pendingPageIds.indexOf(req.body.pageId);
     story.pendingPageIds.splice(index, 1);
     await story.save();
-    res.status(204).json({
+    res.status(200).json({
         status: 'success',
-        data: null
+        story
     })
 })
 

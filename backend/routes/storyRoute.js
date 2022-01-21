@@ -11,7 +11,7 @@ router.put('/page',authCheck, storyController.ownStoryCheck, storyController.add
 
 router
     .route('/pendingPage')
-    .post(storyController.addPendingPage)
+    .post(authCheck,storyController.addPendingPage)
     .put(authCheck, storyController.ownStoryCheck, storyController.removePendingPage)
 
 router
