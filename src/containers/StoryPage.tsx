@@ -32,7 +32,7 @@ const StoryPage = () => {
   const pageType = pageStatus === 'pending' ? 'pendingPageIds' : 'pageIds';
 
   useEffect(()=>{
-    axios.get(`${LOCAL_HOST}/users/`,{headers}).then(result =>setUserId(result.data.data))
+    axios.get(`${LOCAL_HOST}/users/`,{headers}).then(result=>setUserId(result.data.user._id))
   },[userId])
   //console.log('[StoryPage] renders')
   const loadStory = useCallback(async () => {

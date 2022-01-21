@@ -10,6 +10,7 @@ const signToken = id => jwt.sign(
     { expiresIn: process.env.JWT_EXPIRATION }
 );
 
+
 exports.signup = catchAsync(async (req, res, next) => {
     const user = await User.create({
         name: req.body.name,
@@ -24,7 +25,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     const token = signToken(user._id);
     res.status(201).json({
         status: 'success',
-        data: token
+         token
     });
 })
 
@@ -32,14 +33,29 @@ exports.login = catchAsync(async (req, res, next) => {
     const { userInput, password } = req.body;
     const query = userInput.includes('@') ? { email: userInput } : { name: userInput };
     const user = await User.findOne(query).select('+password');
-    if (!user || !(await user.correctPassword(password, user.password))) {
-        return res.status(403).send('Incorrect password');
-    }
+    if (!user || !(await user.correctPassword(password, user.password))) return next(new AppError(`Incorrect ${query.key}/password`,400));
+    
     const token = signToken(user._id);
     res.status(200).json({
         status: 'success',
-        data: token
+         token
     })
+})
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+    const user = await User.findById(req.body.user._id).select('+password');
+    const {currentPassword, newPassword} = req.body;
+    if (!user || !(await user.correctPassword(currentPassword, user.password))) return next(new AppError(`Incorrect password`,400));
+
+    user.password=newPassword;
+    user.passwordChangedAt=Date.now() - 1000;
+    await user.save();
+    const token = signToken(user._id);
+    res.status(201).json({
+        status: 'success',
+        message: 'Password has been changed!',
+        token
+    });
 })
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {

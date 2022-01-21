@@ -4,6 +4,7 @@ import { Routes, Route, NavLink, BrowserRouter } from "react-router-dom";
 
 import Home from 'containers/Home';
 import Stats from 'containers/Stats';
+import Settings from 'containers/Settings';
 import StoryPage from 'containers/StoryPage';
 
 import Login from 'authentication/Login';
@@ -31,7 +32,10 @@ const App = () => {
           <NavLink to='/'>Home</NavLink>
           <NavLink to='/stats'>Stats</NavLink>
           {authToken !== ''
-            ? <NavLink to='/logout'>Logout</NavLink>
+            ? <>
+            <NavLink to='/logout'>Logout</NavLink>
+            <NavLink to='/settings'>Profile</NavLink>
+            </> 
             : <>
               <NavLink to='/login'>Login</NavLink>
               <NavLink to='/signup'>Sign up</NavLink>
@@ -43,6 +47,7 @@ const App = () => {
             <Route path='/signup' element={<Signup />} />
             <Route path='/:storyId/:status' element={<StoryPage />} />
             <Route path='/stats' element={<Stats />} />
+            <Route path='/settings' element={<Settings />} />
             <Route path='/forgotPassword' element={<ForgotPassword />} />
             <Route path='/resetPassword/:token' element={<ResetPassword />} />
 

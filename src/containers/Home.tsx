@@ -24,7 +24,7 @@ const Home: React.FC = () => {
     const token = useAuth().authToken
     const isAuthenticated = token !== '';
     const navigate = useNavigate();
-    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
+    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}`};
     console.log('[HOME] render')
     const [listModifications, setListModifications] = useState<ListModifications>({
         sortBy: 'rating',

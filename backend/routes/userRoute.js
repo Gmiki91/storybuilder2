@@ -10,9 +10,11 @@ router.post('/login',authController.login);
 router.post('/forgotPassword',authController.forgotPassword);
 router.patch('/resetPassword/:resetToken',authController.resetPassword);
 
+router.patch('/updatePassword',authCheck, authController.updatePassword);
+
 router
     .route('/')
-    .get(authCheck, userController.getUserId)
+    .get(authCheck, userController.getUser)
     .put(authCheck, userController.addStoryId)
     .post(authCheck, userController.addPageId);
 
