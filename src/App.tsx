@@ -45,7 +45,7 @@ const App = () => {
             <Route path='/login' element={<Login />} />
             <Route path='/logout' element={<Logout />} />
             <Route path='/signup' element={<Signup />} />
-            <Route path='/:storyId/:status' element={<StoryPage />} />
+            <Route path='/:storyId' element={<StoryPage />} />
             <Route path='/stats' element={<Stats />} />
             <Route path='/settings' element={<Settings />} />
             <Route path='/forgotPassword' element={<ForgotPassword />} />

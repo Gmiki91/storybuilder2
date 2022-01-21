@@ -24,7 +24,6 @@ module.exports = catchAsync(async(req, res, next)=> {
     if(passwordChanged){
         return next(new AppError('Password has been changed. Log in again!',401));
     }
-
     req.body.user = user;
     next();
 });

@@ -32,8 +32,7 @@ export const StoryList: React.FC<Props> = ({ stories, favoriteIds, handleSortBy,
                 removeFromFavorites={()=>removeFromFavorites(story._id)}
                 story={story}
                 key={story._id}
-                onClick={() => navigate(`/${story._id}/confirmed`)}
-                handlePendingList={() => navigate(`/${story._id}/pending`)}
+                onClick={() => navigate(`/${story._id}`)}
             />
         )}
     </>

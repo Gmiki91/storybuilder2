@@ -13,22 +13,23 @@ import { useAuth } from "context/AuthContext";
 
 type Params = {
   storyId: string,
-  status: 'pending' | 'confirmed';
 }
+
+type status = 'pending' | 'confirmed';
 
 const StoryPage = () => {
   console.log('[StoryPage] renders')
   const navigate = useNavigate();
   const isAuthenticated = useAuth().authToken !== '';
   const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-  const { storyId, status } = useParams<Params>();
+  const { storyId } = useParams<Params>();
 
   const [userId, setUserId] = useState('');
   const [story, setStory] = useState({} as Story);
   const [page, setPage] = useState({} as Page);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [formType, setFormType] = useState<FormTypes>('');
-  const [pageStatus, setPageStatus] = useState(status);
+  const [pageStatus, setPageStatus] = useState<status>('confirmed');
 
   const pageType = pageStatus === 'pending' ? 'pendingPageIds' : 'pageIds';
 
@@ -55,7 +56,7 @@ const StoryPage = () => {
 
     } else if(pageStatus==='pending'){ // length of pending pages is 0, switch to confirmed
       setPageStatus('confirmed');
-      if(story.pageIds.length===0) setPage({}as Page); //if confirmed is also 0, empty page state
+      if(story.pageIds?.length===0) setPage({}as Page); //if confirmed is also 0, empty page state
     }
   }, [currentPageIndex, story, pageType])
 
@@ -106,6 +107,7 @@ const StoryPage = () => {
       } else {
         const { newPage, difference } = await axios.put(`${LOCAL_HOST}/pages/rateText`, { vote, pageId: page._id }, { headers }).then(result => result.data);
         setPage(newPage);
+        console.log(difference);
         if (pageStatus === 'confirmed') axios.put(`${LOCAL_HOST}/stories/rate`, { difference, storyId }); // rate only counts if page is not pending
       }
     } else {
