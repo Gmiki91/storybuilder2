@@ -17,26 +17,6 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
     });
 })
 
-exports.addStoryId = catchAsync(async (req, res, next) => {
-    const user = req.body.user;
-    user.storyIdList.push(req.body.storyId);
-    await user.save();
-    res.status(204).json({
-        status: 'success',
-        data: null
-    });
-})
-
-exports.addPageId = catchAsync(async (req, res, next) => {
-    const user = req.body.user;
-    user.pageIdList.push(req.body.storyId);
-    await user.save();
-    res.status(204).json({
-        status: 'success',
-        data: null
-    });
-})
-
 exports.getFavorites = catchAsync(async (req, res, next) => {
     const user = req.body.user;
     res.status(200).json({

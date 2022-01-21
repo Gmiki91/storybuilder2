@@ -13,7 +13,7 @@ exports.getPage = catchAsync(async (req, res, next) => {
     };
     res.status(200).json({
         status: 'success',
-        data: mappedPage
+        page: mappedPage
     })
 })
 
@@ -76,7 +76,7 @@ exports.rateLevel = catchAsync(async (req, res, next) => {
 exports.deletePage = catchAsync(async (req, res, next) => {
     const page =  await Page.findById(req.params.id);
     if (!page) return next(new AppError(`No page found with ID ${req.params.id}.`, 404));
-    if(req.body.user.storyIdList.indexOf(page.storyId)===-1) return next(new AppError('You can only delete pages from your own story.',401));
+    if(req.body.user._id!==page.authorId) return next(new AppError('You can only delete pages from your own story.',401));
     
     await Page.findByIdAndDelete(req.params.id);
     
@@ -90,7 +90,7 @@ exports.deletePage = catchAsync(async (req, res, next) => {
 exports.deletePendingPages = catchAsync(async (req, res, next) => {
     const ids = req.params.ids.split(',');
     const pages = await Page.find({ _id: { $in: ids } });
-    const otherPage = pages.find(page=>req.body.user.storyIdList.indexOf(page.storyId)===-1);
+    const otherPage = pages.find(page=>req.body.user._id!==page.authorId);
 
     if(otherPage) return next(new AppError(`Page ${otherPage._id} is not yours to delete.`));
     

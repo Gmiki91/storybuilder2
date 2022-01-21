@@ -15,8 +15,6 @@ router.patch('/updatePassword',authCheck, authController.updatePassword);
 router
     .route('/')
     .get(authCheck, userController.getUser)
-    .put(authCheck, userController.addStoryId)
-    .post(authCheck, userController.addPageId)
     .patch(authCheck, userController.deleteUser);
 
 router

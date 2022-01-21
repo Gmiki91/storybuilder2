@@ -3,10 +3,11 @@ const router = express.Router();
 const storyController = require('../controllers/storyController');
 const authCheck = require('../middleware/authCheck');
 
-router.post('/all',storyController.getStories)
 router.post('/',authCheck, storyController.createStory);
-router.put('/page',authCheck, storyController.ownStoryCheck, storyController.addPage);
+router.post('/all',storyController.getStories);
+
 router.put('/rate',storyController.rateStory);
+router.put('/page',authCheck, storyController.ownStoryCheck, storyController.addPage);
 
 router
     .route('/pendingPage')

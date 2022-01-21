@@ -30,8 +30,6 @@ const user = mongoose.Schema({
         code: String,
         level: String
     }],
-    storyIdList: [String],
-    pageIdList: [String],
     favoriteStoryIdList: [String],
     writerRating: Number,
 }, { collection: 'users' })

@@ -16,8 +16,6 @@ exports.signup = catchAsync(async (req, res, next) => {
         email: req.body.email,
         password: req.body.password,
         languages: null,
-        storyIdList: [],
-        pageIdList: [],
         favoriteStoryIdList: [],
         writerRating: 0,
     });

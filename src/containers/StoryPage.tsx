@@ -17,6 +17,7 @@ type Params = {
 }
 
 const StoryPage = () => {
+  //console.log('[StoryPage] renders')
   const navigate = useNavigate();
   const isAuthenticated = useAuth().authToken !== '';
   const headers = { Authorization: `Bearer ${localStorage.getItem('token')}`};
@@ -33,8 +34,8 @@ const StoryPage = () => {
 
   useEffect(()=>{
     axios.get(`${LOCAL_HOST}/users/`,{headers}).then(result=>setUserId(result.data.user._id))
-  },[userId])
-  //console.log('[StoryPage] renders')
+  },[userId]);
+
   const loadStory = useCallback(async () => {
     const story = await axios.get(`${LOCAL_HOST}/stories/${storyId}`).then(result => result.data.data);
     setStory(story);
@@ -45,11 +46,11 @@ const StoryPage = () => {
     loadStory();
   }, [loadStory])
 
-  //reload page
+
   const loadPage = useCallback(async () => {
     if (story[pageType] && story[pageType].length > 0) {
       const id = story[pageType][currentPageIndex];
-      const page = await axios.get(`${LOCAL_HOST}/pages/${id}`).then(result => result.data.data);
+      const page = await axios.get(`${LOCAL_HOST}/pages/${id}`).then(result => result.data.page);
       setPage(page);
     } else {
       setPage({} as Page);
@@ -100,16 +101,12 @@ const StoryPage = () => {
           call2 = axios.put(`${LOCAL_HOST}/stories/page`, body,{headers}); //add page to story 
           story.pendingPageIds.length > 1 && removePendingPages();  //remove all other pending pages
         }
-      } else if (userId === story.authorId) {
-        console.log('cant rate your own story');
-      } else if (userId === page.authorId) {
-        console.log('cant rate your own page');
       } else {
         const difference = await axios.put(`${LOCAL_HOST}/pages/rateText`, { vote, pageId: page._id }, { headers }).then(result=>result.data.data)
         if(pageStatus ==='confirmed') call2 =  axios.put(`${LOCAL_HOST}/stories/rate`, { difference, storyId });
       }
       await Promise.all([call1, call2]);
-      loadStory();
+      loadPage();
     } else {
       navigate(`/login`);
     }
@@ -150,6 +147,7 @@ const StoryPage = () => {
     key={page._id}
     page={page}
     userId={userId}
+    ownContent={userId===(page.authorId || story.authorId)}
     toConfirm={pageStatus === 'pending' && story.authorId === userId}
     onRateLevel={() => setFormType('rateLevel')}
     onRateText={handleRateText}

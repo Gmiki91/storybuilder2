@@ -21,11 +21,11 @@ type ListModifications = {
 }
 
 const Home: React.FC = () => {
-    const token = useAuth().authToken
+    console.log('[HOME] render');
+    const token = useAuth().authToken;
     const isAuthenticated = token !== '';
     const navigate = useNavigate();
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}`};
-    console.log('[HOME] render')
     const [listModifications, setListModifications] = useState<ListModifications>({
         sortBy: 'rating',
         sortDirection: 1,
@@ -70,8 +70,7 @@ const Home: React.FC = () => {
             level: form.level.value,
         }
         const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-        const storyId = await axios.post(`${LOCAL_HOST}/stories/`, story, { headers }).then((result) => result.data.data);
-        await axios.put(`${LOCAL_HOST}/users/`, { storyId }, { headers });
+        await axios.post(`${LOCAL_HOST}/stories/`, story, { headers }).then((result) => result.data.data);
         getSortedList();
 
     }
