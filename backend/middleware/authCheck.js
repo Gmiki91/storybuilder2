@@ -17,7 +17,7 @@ module.exports = catchAsync(async(req, res, next)=> {
 
     const user = await User.findById(decoded.id);
     if(!user){
-        return next(new AppError('User no longer exists!', 401));
+        return next(new AppError('User does not exists!', 401));
     }
     
     const passwordChanged = user.changedPasswordAfter(decoded.iat);

@@ -28,11 +28,21 @@ const Settings = () => {
         .catch(error => setResponse(error.response.data.message));
     }
 
+    const handleDeleteUser =()=>{
+        axios.patch(`${LOCAL_HOST}/users/`,{},{headers})
+        .then(result => {
+            console.log(result);
+        })
+    }
+
     return <>
-        <label>Change password</label>
+        <div>Change password
         <input type="password" placeholder="Current password" onChange={e => setCurrentPassword(e.target.value)} value={currentPassword} />
         <input type="password" placeholder="New password" onChange={e => setNewPassword(e.target.value)} value={newPassword} />
         <button onClick={handlePasswordChange}>Submit</button>
+        </div>
+
+<button onClick={handleDeleteUser}>Delete User</button>
         {response && <p>{response}</p>}
     </>
 }

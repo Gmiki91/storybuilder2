@@ -18,6 +18,11 @@ const user = mongoose.Schema({
         select: false,
         required: [true, 'Please enter your password'],
     },
+    active:{
+        type:Boolean,
+        default:true,
+        select: false,
+    },
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
@@ -43,6 +48,11 @@ user.pre('save', async function (next) {
 user.pre('save', function(next){
     if(!this.isModified('password') || this.isNew) return next();
     user.passwordChangedAt=Date.now() - 1000; // --- the token might be created faster than the db update, this way we make sure that the token iat is after the passwordChangedAt property
+    next();
+})
+
+user.pre(/^find/,function(next){
+    this.find({active:true});
     next();
 })
 

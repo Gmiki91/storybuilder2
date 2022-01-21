@@ -1,11 +1,21 @@
-const catchAsync = require('../utils/catchAsync')
-
+const catchAsync = require('../utils/catchAsync');
+const User = require('../models/user');
 exports.getUser = (req, res) => {
     res.status(200).json({
         status: 'success',
         user: req.body.user
     });
 }
+
+exports.deleteUser = catchAsync(async (req, res, next) => {
+    const user = await User.findById(req.body.user._id).select('active');
+    user.active = false;
+    await user.save();
+    res.status(201).json({
+        status: 'success',
+        message: 'User deleted successfully'
+    });
+})
 
 exports.addStoryId = catchAsync(async (req, res, next) => {
     const user = req.body.user;

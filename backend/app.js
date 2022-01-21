@@ -1,5 +1,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const mongoSanitize = require('mongo-sanitize');
+const xss = require('xss-clean');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const cors = require('cors');
+const hpp = require('hpp')
+
+const app = express();
+const port = process.env.EXPRESS_PORT || 3030;
+const limiter = rateLimit({
+    max: 20,
+    windowMs: 60*60*1000,
+    message:'Too many requests. Please try again in an hour'
+});
+
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController')
+const storyRoute = require('./routes/storyRoute');
+const userRoute = require('./routes/userRoute');
+const pageRoute = require('./routes/pageRoute');
 
 process.on('uncaughtException', err => {
     console.log('Uncaught exception. Shutting down...')
@@ -7,19 +27,21 @@ process.on('uncaughtException', err => {
     process.exit(1);
 })
 
-const cors = require('cors');
-const app = express();
+//set security http headers
+app.use(helmet());
 
-const port = process.env.EXPRESS_PORT || 3030;
-const AppError = require('./utils/appError');
-const globalErrorHandler = require('./controllers/errorController')
-const storyRoute = require('./routes/storyRoute');
-const userRoute = require('./routes/userRoute');
-const pageRoute = require('./routes/pageRoute');
-
+//enable all cors requests
 app.use(cors());
-app.use(express.json());
 
+//Body parser, reading data from body to req.body, limiting its size
+app.use(express.json({limit:'50kb'}));
+
+//Data sanitization against 
+app.use(mongoSanitize()); //NoSQL query injection
+app.use(xss()); //XSS 
+app.use(hpp()); //parameter pollution
+
+app.use('/api/users/login',limiter)
 app.use('/api/stories', storyRoute);
 app.use('/api/users', userRoute);
 app.use('/api/pages', pageRoute);

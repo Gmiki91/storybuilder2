@@ -16,7 +16,8 @@ router
     .route('/')
     .get(authCheck, userController.getUser)
     .put(authCheck, userController.addStoryId)
-    .post(authCheck, userController.addPageId);
+    .post(authCheck, userController.addPageId)
+    .patch(authCheck, userController.deleteUser);
 
 router
     .route('/favorites')
