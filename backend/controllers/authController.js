@@ -1,9 +1,12 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library')
 const User = require('../models/user');
 const catchAsync = require('../utils/catchAsync')
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
+
+const client = new OAuth2Client(process.env.REACT_APP_CLIENT_ID)
 const signToken = id => jwt.sign(
     { id },
     process.env.JWT_SECRET,
@@ -15,14 +18,13 @@ exports.signup = catchAsync(async (req, res, next) => {
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
-        languages: null,
         favoriteStoryIdList: [],
         writerRating: 0,
     });
     const token = signToken(user._id);
     res.status(201).json({
         status: 'success',
-         token
+        token
     });
 })
 
@@ -30,22 +32,46 @@ exports.login = catchAsync(async (req, res, next) => {
     const { userInput, password } = req.body;
     const query = userInput.includes('@') ? { email: userInput } : { name: userInput };
     const user = await User.findOne(query).select('+password');
-    if (!user || !(await user.correctPassword(password, user.password))) return next(new AppError(`Incorrect ${query.key}/password`,401));
-    
+    if (!user || !(await user.correctPassword(password, user.password))) return next(new AppError(`Incorrect ${query.key}/password`, 401));
+
     const token = signToken(user._id);
     res.status(200).json({
         status: 'success',
-         token
+        token
+    })
+})
+
+exports.loginGoogle = catchAsync(async (req, res, next) => {
+    const { token } = req.body;
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.REACT_APP_CLIENT_ID
+    });
+    const { name, email } = ticket.getPayload();
+    let user = await User.findOne({ email });
+    if (!user) {
+        user = await User.create({
+            name,
+            email,
+            password:'??????',
+            favoriteStoryIdList: [],
+            writerRating: 0,
+        })
+    }
+    const jwt = signToken(user._id);
+    res.status(200).json({
+        status: 'success',
+        token: jwt
     })
 })
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
     const user = await User.findById(req.body.user._id).select('+password');
-    const {currentPassword, newPassword} = req.body;
-    if (!user || !(await user.correctPassword(currentPassword, user.password))) return next(new AppError(`Incorrect password`,401));
+    const { currentPassword, newPassword } = req.body;
+    if (!user || !(await user.correctPassword(currentPassword, user.password))) return next(new AppError(`Incorrect password`, 401));
 
-    user.password=newPassword;
-    user.passwordChangedAt=Date.now() - 1000;
+    user.password = newPassword;
+    user.passwordChangedAt = Date.now() - 1000;
     await user.save();
     const token = signToken(user._id);
     res.status(201).json({
@@ -57,7 +83,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email });
-    if (!user) return next(new AppError(`No user found with email ${req.body.email}.`,400));
+    if (!user) return next(new AppError(`No user found with email ${req.body.email}.`, 400));
 
     const resetToken = user.createPasswordResetToken();
     await user.save();
@@ -86,19 +112,19 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     const passwordResetToken = crypto.createHash('sha256').update(req.params.resetToken).digest('hex');
     const user = await User.findOne({
         passwordResetToken,
-        passwordResetExpires:{$gt:Date.now()}
+        passwordResetExpires: { $gt: Date.now() }
     });
 
-    if(!user)return next(new AppError('Token is invalid/expired.',400));
+    if (!user) return next(new AppError('Token is invalid/expired.', 400));
 
     user.password = req.body.password;
-    user.passwordResetToken=undefined;
-    user.passwordResetExpires=undefined;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
     await user.save();
-    
+
     const token = signToken(user._id);
     res.status(201).json({
         status: 'success',
         data: token
     });
- })
+})

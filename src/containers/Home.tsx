@@ -37,14 +37,14 @@ const Home: React.FC = () => {
     const [stories, setStories] = useState<Story[]>([]);
     const [filters, applyFilters] = useState(false);
     const [formType, setFormType] = useState<FormTypes>('');
-    const [favoriteIds, setFavoriteIds] = useState([]);
+    const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
 
-    const getFavorites = useCallback(() => {
+    useEffect(() => {
         if(isAuthenticated)
         axios.get(`${LOCAL_HOST}/users/favorites`, { headers }).then(result => setFavoriteIds(result.data.data))
-    }, [isAuthenticated])
+    }, [isAuthenticated]);
 
-    const getSortedList = useCallback(() => {
+    useEffect(() => {
         axios.post(`${LOCAL_HOST}/stories/all`, listModifications)
             .then(result => {
                 setStories(result.data.data);
@@ -52,15 +52,7 @@ const Home: React.FC = () => {
             });
     }, [filters]);
 
-    useEffect(() => {
-        getSortedList();
-    }, [getSortedList]);
-
-    useEffect(() => {
-        getFavorites()
-    }, [getFavorites]);
-
-    const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleNewStory = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const form = event.currentTarget;
         const story = {
@@ -70,9 +62,8 @@ const Home: React.FC = () => {
             level: form.level.value,
         }
         const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-        await axios.post(`${LOCAL_HOST}/stories/`, story, { headers }).then((result) => result.data.data);
-        getSortedList();
-
+        axios.post(`${LOCAL_HOST}/stories/`, story, { headers }).then((result) => setStories(prevState=>[...prevState,result.data.story]));
+        setFormType('');
     }
 
     const handleSortDirection = (direction: number) => {
@@ -86,10 +77,15 @@ const Home: React.FC = () => {
     }
 
     const addToFavorites = (storyId: string) => {
-        axios.post(`${LOCAL_HOST}/users/favorites`, { storyId }, { headers }).then(()=>getFavorites());
+        setFavoriteIds(prevState=>([...prevState,storyId]))
+        axios.post(`${LOCAL_HOST}/users/favorites`, { storyId }, { headers });
     }
     const removeFromFavorites = (storyId: string) => {
-        axios.put(`${LOCAL_HOST}/users/favorites`, { storyId }, { headers }).then(()=>getFavorites());
+        const newList = [...favoriteIds];
+        const index = newList.indexOf(storyId);
+        newList.splice(index,1);
+        setFavoriteIds(newList);
+        axios.put(`${LOCAL_HOST}/users/favorites`, { storyId }, { headers });
     }
 
     const getForm = () => {
@@ -103,7 +99,7 @@ const Home: React.FC = () => {
             case 'newStory':
                 return <NewStory
                     onCloseForm={() => setFormType('')}
-                    onSubmit={handleFormSubmit} />
+                    onSubmit={handleNewStory} />
             default:
                 return null;
         }

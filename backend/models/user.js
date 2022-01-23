@@ -26,10 +26,6 @@ const user = mongoose.Schema({
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
-    languages: [{
-        code: String,
-        level: String
-    }],
     favoriteStoryIdList: [String],
     writerRating: Number,
 }, { collection: 'users' })

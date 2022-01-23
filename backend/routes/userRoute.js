@@ -6,6 +6,7 @@ const authCheck = require('../middleware/authCheck');
 
 router.post('/signup',authController.signup);
 router.post('/login',authController.login);
+router.post('/loginGoogle',authController.loginGoogle);
 
 router.post('/forgotPassword',authController.forgotPassword);
 router.patch('/resetPassword/:resetToken',authController.resetPassword);

@@ -17,7 +17,7 @@ exports.createStory = catchAsync(async (req, res, next) => {
     });
     res.status(201).json({
         status: 'success',
-        data: story._id
+        story
     })
 })
 
