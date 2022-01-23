@@ -6,7 +6,6 @@ import { LOCAL_HOST } from 'constants/constants';
 import { useAuth } from 'context/AuthContext';
 
 const Signup = () => {
-  const [isLoggedIn, setLoggedIn] = useState(false);
   const [isError, setIsError] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -22,7 +21,6 @@ const Signup = () => {
     }).then(result => {
       if (result.status === 201) {
         setAuthToken(result.data.token);
-        setLoggedIn(true);
         navigate("/");
       } else {
         setIsError(true);

@@ -7,12 +7,12 @@ import { LOCAL_HOST } from "constants/constants";
 import { Card, Form, Input, Button } from 'authentication/AuthForm';
 
 const Login = () => {
-  const [isLoggedIn, setLoggedIn] = useState(false);
   const [isError, setIsError] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [password, setPassword] = useState("");
   const { setAuthToken } = useAuth();
   const navigate = useNavigate();
+
   const postLogin = () => {
     axios.post(`${LOCAL_HOST}/users/login`, {
       userInput,
@@ -20,7 +20,7 @@ const Login = () => {
     }).then(result => {
       if (result.status === 200) {
         setAuthToken(result.data.token);
-        setLoggedIn(true);
+        navigate("/");
       } else {
         setIsError(true);
       }
@@ -34,7 +34,7 @@ const Login = () => {
         axios.post(`${LOCAL_HOST}/users/loginGoogle`,{token:response.tokenId}).then(result=>{
           if (result.status === 200) {
             setAuthToken(result.data.token);
-            setLoggedIn(true);
+            navigate("/");
           } else {
             setIsError(true);
           }
@@ -46,9 +46,6 @@ const Login = () => {
     }
   }
 
-  if (isLoggedIn) {
-    navigate("/");
-  }
   return (
     <Card>
       <Form>
