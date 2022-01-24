@@ -1,5 +1,5 @@
 import axios from "axios";
-import {  useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FormTypes } from "components/modal/forms/FormTypes";
 import { NewPage } from "components/modal/forms/NewPage";
@@ -42,21 +42,21 @@ const StoryPage = () => {
   }, [storyId])
 
   useEffect(() => {
-    const storyLength = story[pageType]?.length-1;
+    const storyLength = story[pageType]?.length - 1;
     if (storyLength >= 0) {
       let id;
-      if(storyLength < currentPageIndex){ //currentIndex is out of bound
-        id= story[pageType][storyLength];
+      if (storyLength < currentPageIndex) { //currentIndex is out of bound
+        id = story[pageType][storyLength];
         setCurrentPageIndex(storyLength);
-      }else{
+      } else {
         id = story[pageType][currentPageIndex];
       }
       axios.get(`${LOCAL_HOST}/pages/${id}`)
-      .then(result => setPage(result.data.page));
+        .then(result => setPage(result.data.page));
 
-    } else if(pageStatus==='pending'){ // length of pending pages is 0, switch to confirmed
+    } else if (pageStatus === 'pending') { // length of pending pages is 0, switch to confirmed
       setPageStatus('confirmed');
-      if(story.pageIds?.length===0) setPage({}as Page); //if confirmed is also 0, empty page state
+      if (story.pageIds?.length === 0) setPage({} as Page); //if confirmed is also 0, empty page state
     }
   }, [currentPageIndex, story, pageStatus, pageType]);
 
@@ -126,6 +126,15 @@ const StoryPage = () => {
     }
   }
 
+  const jumpTo = (page: string) => {
+    if (page === '') {
+      setCurrentPageIndex(0)
+    } else {
+      const number = parseInt(page) - 1;
+      if (!isNaN(number) && number >= 0 && story[pageType]?.length - 1 >= number && currentPageIndex !== number) setCurrentPageIndex(number);
+    }
+  }
+
   const toggleItems = (status: 'pending' | 'confirmed') => {
     setCurrentPageIndex(0);
     setPageStatus(status);
@@ -136,8 +145,6 @@ const StoryPage = () => {
     if (formType === 'rateLevel') return <RateLevel level={page.level} onSubmit={handleRateLevel} onClose={() => setCurrentPageIndex(-1)} />
     return null;
   }
-
-  const pageNumber = story[pageType]?.indexOf(page._id) + 1;
   const onLastPage = story[pageType]?.length > 0 ? currentPageIndex === story[pageType].length - 1 : true;
   const addPageVisible = pageStatus !== 'pending' && onLastPage && (story.openEnded || userId === story.authorId);
   const toggleStatus = pageStatus === 'confirmed' ? story.pendingPageIds && story.pendingPageIds.length > 0 && <div onClick={() => toggleItems('pending')}>
@@ -169,7 +176,7 @@ const StoryPage = () => {
     <br></br>
     <div className='footer'>
       {currentPageIndex > 0 && <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button>}
-      {pageNumber > 0 && <p>{pageNumber} / {story[pageType].length}</p>}
+      <div><input value={currentPageIndex + 1} onChange={(event) => jumpTo(event.target.value)} /> / {story[pageType].length}</div>
       {!onLastPage && <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button>}
     </div>
     {addPageVisible && <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button>}
