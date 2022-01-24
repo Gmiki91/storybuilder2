@@ -19,29 +19,34 @@ type status = 'pending' | 'confirmed';
 const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 
 const StoryPage = () => {
-  console.log('[StoryPage] renders')
+  console.log('[StoryPage] renders');
   const navigate = useNavigate();
   const isAuthenticated = useAuth().authToken !== '';
   const { storyId } = useParams<Params>();
-
   const [userId, setUserId] = useState('');
   const [story, setStory] = useState({} as Story);
   const [page, setPage] = useState({} as Page);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [formType, setFormType] = useState<FormTypes>('');
   const [pageStatus, setPageStatus] = useState<status>('confirmed');
-
+  const [loading, isLoading] = useState(false);
+  const [error, setError] = useState<string>();
   const pageType = pageStatus === 'pending' ? 'pendingPageIds' : 'pageIds';
 
   useEffect(() => {
-    axios.get(`${LOCAL_HOST}/users/`, { headers }).then(result => setUserId(result.data.user._id))
+    axios.get(`${LOCAL_HOST}/users/`, { headers })
+      .then(result => setUserId(result.data.user._id))
   }, []);
 
   useEffect(() => {
-    axios.get(`${LOCAL_HOST}/stories/${storyId}`).then(result => setStory(result.data.story))
+    isLoading(true);
+    axios.get(`${LOCAL_HOST}/stories/${storyId}`)
+      .then(result => setStory(result.data.story))
+      .catch(() => setError('No story to display'));
   }, [storyId])
 
   useEffect(() => {
+    !loading && isLoading(true);
     const storyLength = story[pageType]?.length - 1;
     if (storyLength >= 0) {
       let id;
@@ -52,11 +57,15 @@ const StoryPage = () => {
         id = story[pageType][currentPageIndex];
       }
       axios.get(`${LOCAL_HOST}/pages/${id}`)
-        .then(result => setPage(result.data.page));
-
+        .then(result => {
+          setPage(result.data.page);
+          isLoading(false);
+        })
     } else if (pageStatus === 'pending') { // length of pending pages is 0, switch to confirmed
       setPageStatus('confirmed');
       if (story.pageIds?.length === 0) setPage({} as Page); //if confirmed is also 0, empty page state
+    } else {
+      isLoading(false);
     }
   }, [currentPageIndex, story, pageStatus, pageType]);
 
@@ -163,26 +172,27 @@ const StoryPage = () => {
     onRateText={handleRateText}
   /> : <div>No pages yet </div>
 
-  return story ? <>
-    <h1>{story.title}</h1>
+  return error ? <div>{error}</div> :
+    loading ? <div>loading</div> :
+      <>
+        <h1>{story.title}</h1>
 
-    {formType !== '' &&
-      <Modal closeModal={() => setFormType('')}>
-        {form}
-      </Modal>}
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {pageContent}
-    </div>
-    <br></br>
-    <div className='footer'>
-      {currentPageIndex > 0 && <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button>}
-      <div><input value={currentPageIndex + 1} onChange={(event) => jumpTo(event.target.value)} /> / {story[pageType].length}</div>
-      {!onLastPage && <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button>}
-    </div>
-    {addPageVisible && <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button>}
-    {toggleStatus}
-  </>
-    : <div>loading</div>
+        {formType !== '' &&
+          <Modal closeModal={() => setFormType('')}>
+            {form}
+          </Modal>}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {pageContent}
+        </div>
+        <br></br>
+        <div className='footer'>
+          {currentPageIndex > 0 && <button onClick={() => setCurrentPageIndex(prevState => prevState - 1)}>prev</button>}
+          {page._id && <div><input value={currentPageIndex + 1} onChange={(event) => jumpTo(event.target.value)} /> / {story[pageType]?.length}</div>}
+          {!onLastPage && <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button>}
+        </div>
+        {addPageVisible && <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button>}
+        {toggleStatus}
+      </>
 }
 
 export default StoryPage;
