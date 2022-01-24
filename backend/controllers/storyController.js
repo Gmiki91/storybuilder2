@@ -33,10 +33,12 @@ exports.getStories = catchAsync(async (req, res, next) => {
     const query = {};
     const sortObject = {};
     if (req.body.from === 'own') {
+
         //query['authorId'] = userId
     } else if (req.body.from === 'favorites') {
         //query['authorId'] = favorites
     }
+    if (req.body.storyName.length > 2) query['title'] = req.body.storyName;
     if (req.body.languages.length > 0) query['language'] = req.body.languages;
     if (req.body.levels.length > 0) query['level'] = req.body.levels;
     if (req.body.openEnded !== 'both') query['openEnded'] = req.body.openEnded;
@@ -105,9 +107,9 @@ exports.removePendingPage = catchAsync(async (req, res, next) => {
     })
 })
 
-exports.ownStoryCheck = catchAsync(async(req, res, next)=> {
+exports.ownStoryCheck = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.body.storyId);
-    if(story.authorId !== req.body.user._id.toString()) return next(new AppError('You can only edit your own story.',401));
+    if (story.authorId !== req.body.user._id.toString()) return next(new AppError('You can only edit your own story.', 401));
     req.body.story = story;
     next();
 })

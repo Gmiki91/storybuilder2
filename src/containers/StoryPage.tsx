@@ -16,12 +16,12 @@ type Params = {
 }
 
 type status = 'pending' | 'confirmed';
+const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 
 const StoryPage = () => {
   console.log('[StoryPage] renders')
   const navigate = useNavigate();
   const isAuthenticated = useAuth().authToken !== '';
-  const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
   const { storyId } = useParams<Params>();
 
   const [userId, setUserId] = useState('');
@@ -58,7 +58,7 @@ const StoryPage = () => {
       setPageStatus('confirmed');
       if(story.pageIds?.length===0) setPage({}as Page); //if confirmed is also 0, empty page state
     }
-  }, [currentPageIndex, story, pageType])
+  }, [currentPageIndex, story, pageStatus, pageType]);
 
   const addPage = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

@@ -6,13 +6,12 @@ import { useNavigate } from "react-router-dom";
 type Props = {
     stories: Story[];
     favoriteIds: string[];
-    handleSortBy: (sortBy: string) => void;
-    handleSortDirection: (sortDirection: number) => void;
+    handleSort: (sort: string | number) => void;
     removeFromFavorites:(storyId:string)=>void;
     addToFavorites:(storyId:string)=>void;
 }
 
-export const StoryList: React.FC<Props> = ({ stories, favoriteIds, handleSortBy, handleSortDirection, addToFavorites, removeFromFavorites }) => {
+export const StoryList: React.FC<Props> = ({ stories, favoriteIds, handleSort, addToFavorites, removeFromFavorites }) => {
     console.log('[StoryList] render');
     const navigate = useNavigate();
     return <>
@@ -22,9 +21,9 @@ export const StoryList: React.FC<Props> = ({ stories, favoriteIds, handleSortBy,
                 { text: 'Updated at', value: 'updatedAt' },
                 { text: 'Title', value: 'title' },
             ]}
-            selectChanged={(e) => handleSortBy(e.target.value)} />
-        <img style={{ width: '20px', height: '20px' }} src={require(`../assets/uparrow.png`)} alt="uparrow" onClick={() => handleSortDirection(1)} />
-        <img style={{ width: '20px', height: '20px' }} src={require(`../assets/downarrow.png`)} alt="downarrow" onClick={() => handleSortDirection(-1)} />
+            selectChanged={(e) => handleSort(e.target.value)} />
+        <img style={{ width: '20px', height: '20px' }} src={require(`../assets/uparrow.png`)} alt="uparrow" onClick={() => handleSort(1)} />
+        <img style={{ width: '20px', height: '20px' }} src={require(`../assets/downarrow.png`)} alt="downarrow" onClick={() => handleSort(-1)} />
         {stories.map(story =>
             <StoryCard
                 favorite={favoriteIds.includes(story._id)}

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StoryList } from "components/StoryList";
 import { Filter } from "components/modal/forms/Filter";
@@ -11,7 +11,8 @@ import { LOCAL_HOST } from "constants/constants";
 import { useAuth } from "context/AuthContext";
 import { Story } from "models/Story";
 
-type ListModifications = {
+type SearchCriteria = {
+    storyName: string,
     sortBy: string,
     sortDirection: number,
     from: string,
@@ -20,13 +21,14 @@ type ListModifications = {
     openEnded: string;
 }
 
+const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 const Home: React.FC = () => {
     console.log('[HOME] render');
     const token = useAuth().authToken;
     const isAuthenticated = token !== '';
     const navigate = useNavigate();
-    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}`};
-    const [listModifications, setListModifications] = useState<ListModifications>({
+    const [searchCriteria, setSearchCriteria] = useState<SearchCriteria>({
+        storyName: '',
         sortBy: 'rating',
         sortDirection: 1,
         from: 'all',
@@ -40,17 +42,25 @@ const Home: React.FC = () => {
     const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
 
     useEffect(() => {
-        if(isAuthenticated)
-        axios.get(`${LOCAL_HOST}/users/favorites`, { headers }).then(result => setFavoriteIds(result.data.data))
+        if (isAuthenticated)
+            axios.get(`${LOCAL_HOST}/users/favorites`, { headers }).then(result => setFavoriteIds(result.data.data))
     }, [isAuthenticated]);
 
     useEffect(() => {
-        axios.post(`${LOCAL_HOST}/stories/all`, listModifications)
+        axios.post(`${LOCAL_HOST}/stories/all`, searchCriteria)
             .then(result => {
                 setStories(result.data.data);
                 setFormType('');
             });
     }, [filters]);
+
+    useEffect(() => {
+        let timeOut: NodeJS.Timeout;
+        if (searchCriteria.storyName.length > 2) {
+            timeOut = setTimeout(() => applyFilters(prevState => !prevState), 1000);
+        }
+        return () => clearTimeout(timeOut);
+    }, [searchCriteria.storyName])
 
     const handleNewStory = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -62,28 +72,33 @@ const Home: React.FC = () => {
             level: form.level.value,
         }
         const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-        axios.post(`${LOCAL_HOST}/stories/`, story, { headers }).then((result) => setStories(prevState=>[...prevState,result.data.story]));
+        axios.post(`${LOCAL_HOST}/stories/`, story, { headers }).then((result) => setStories(prevState => [...prevState, result.data.story]));
         setFormType('');
     }
 
-    const handleSortDirection = (direction: number) => {
-        setListModifications(prevState => ({ ...prevState, sortDirection: direction }));
+    const handleSort = (sort: number|string) => {
+        if(typeof sort === 'string') setSearchCriteria(prevState => ({ ...prevState, sortBy: sort }));
+        else setSearchCriteria(prevState => ({ ...prevState, sortDirection: sort }));
+
         applyFilters(prevState => !prevState);
     }
 
-    const handleSortBy = (property: string) => {
-        setListModifications(prevState => ({ ...prevState, sortBy: property }));
-        applyFilters(prevState => !prevState);
+
+    const handleStoryNameSearch = (name: string) => {
+        if(name.length<3 && searchCriteria.storyName.length >=3){
+            applyFilters(prevState => !prevState);
+        }
+        setSearchCriteria(prevState => ({ ...prevState, storyName: name }));
     }
 
     const addToFavorites = (storyId: string) => {
-        setFavoriteIds(prevState=>([...prevState,storyId]))
+        setFavoriteIds(prevState => ([...prevState, storyId]))
         axios.post(`${LOCAL_HOST}/users/favorites`, { storyId }, { headers });
     }
     const removeFromFavorites = (storyId: string) => {
         const newList = [...favoriteIds];
         const index = newList.indexOf(storyId);
-        newList.splice(index,1);
+        newList.splice(index, 1);
         setFavoriteIds(newList);
         axios.put(`${LOCAL_HOST}/users/favorites`, { storyId }, { headers });
     }
@@ -94,8 +109,8 @@ const Home: React.FC = () => {
                 return <Filter
                     onCloseForm={() => setFormType('')}
                     onApply={() => applyFilters(prevState => !prevState)}
-                    filters={listModifications}
-                    changeFilter={(changes) => setListModifications(prevState => ({ ...prevState, ...changes }))} />
+                    filters={searchCriteria}
+                    changeFilter={(changes) => setSearchCriteria(prevState => ({ ...prevState, ...changes }))} />
             case 'newStory':
                 return <NewStory
                     onCloseForm={() => setFormType('')}
@@ -115,14 +130,14 @@ const Home: React.FC = () => {
                 {form}
             </Modal>}
         <br></br>
+        <input placeholder="Search by story title" value={searchCriteria.storyName} onChange={(e) => handleStoryNameSearch(e.target.value)} />
         {stories.length > 0 ?
             <StoryList
                 addToFavorites={addToFavorites}
                 removeFromFavorites={removeFromFavorites}
                 stories={stories}
                 favoriteIds={favoriteIds}
-                handleSortDirection={handleSortDirection}
-                handleSortBy={handleSortBy} />
+                handleSort={handleSort} />
             : <div>loading</div>}
     </>
 };

@@ -7,7 +7,6 @@ exports.getPage = catchAsync(async (req, res, next) => {
 
     if (!page) return next(new AppError(`No page found with ID ${req.params.id}`, 404))
 
-
     res.status(200).json({
         status: 'success',
         page: mappedPage(page)
