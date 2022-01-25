@@ -1,15 +1,13 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { StoryList } from "components/StoryList";
 import { Filter } from "components/modal/forms/Filter";
-import { NewStory } from "components/modal/forms/NewStory";
-import { FormTypes } from "components/modal/forms/FormTypes";
 import { Trigger } from "components/modal/Trigger";
 import { Modal } from "components/modal/Modal";
 import { LOCAL_HOST } from "constants/constants";
 import { useAuth } from "context/AuthContext";
 import { Story } from "models/Story";
+import { SortBy } from "components/SortBy";
 
 type SearchCriteria = {
     storyName: string,
@@ -26,7 +24,6 @@ const Home: React.FC = () => {
     console.log('[HOME] render');
     const token = useAuth().authToken;
     const isAuthenticated = token !== '';
-    const navigate = useNavigate();
     const [searchCriteria, setSearchCriteria] = useState<SearchCriteria>({
         storyName: '',
         sortBy: 'rating',
@@ -38,7 +35,7 @@ const Home: React.FC = () => {
     });
     const [stories, setStories] = useState<Story[]>([]);
     const [filters, applyFilters] = useState(false);
-    const [formType, setFormType] = useState<FormTypes>('');
+    const [showModal, setShowModal] = useState(false);
     const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
     const [loading, isLoading] = useState(false);
 
@@ -52,7 +49,7 @@ const Home: React.FC = () => {
         axios.post(`${LOCAL_HOST}/stories/all`, searchCriteria)
             .then(result => {
                 setStories(result.data.data);
-                setFormType('');
+                setShowModal(false);
                 isLoading(false);
             });
     }, [filters]);
@@ -65,24 +62,12 @@ const Home: React.FC = () => {
         return () => clearTimeout(timeOut);
     }, [searchCriteria.storyName])
 
-    const handleNewStory = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const form = event.currentTarget;
-        const story = {
-            title: form.titel.value,
-            description: form.description.value,
-            language: form.language.value,
-            level: form.level.value,
+    const handleSort = (sortValue: string) => {
+        if (searchCriteria.sortBy === sortValue) {
+            setSearchCriteria(prevState => ({ ...prevState, sortDirection: -searchCriteria.sortDirection }));
+        } else {
+            setSearchCriteria(prevState => ({ ...prevState, sortBy: sortValue }));
         }
-        const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-        axios.post(`${LOCAL_HOST}/stories/`, story, { headers }).then((result) => setStories(prevState => [...prevState, result.data.story]));
-        setFormType('');
-    }
-
-    const handleSort = (sort: number | string) => {
-        if (typeof sort === 'string') setSearchCriteria(prevState => ({ ...prevState, sortBy: sort }));
-        else setSearchCriteria(prevState => ({ ...prevState, sortDirection: sort }));
-
         applyFilters(prevState => !prevState);
     }
 
@@ -106,42 +91,31 @@ const Home: React.FC = () => {
         axios.put(`${LOCAL_HOST}/users/favorites`, { storyId }, { headers });
     }
 
-    const getForm = () => {
-        switch (formType) {
-            case 'filter':
-                return <Filter
-                    onCloseForm={() => setFormType('')}
-                    onApply={() => applyFilters(prevState => !prevState)}
-                    filters={searchCriteria}
-                    changeFilter={(changes) => setSearchCriteria(prevState => ({ ...prevState, ...changes }))} />
-            case 'newStory':
-                return <NewStory
-                    onCloseForm={() => setFormType('')}
-                    onSubmit={handleNewStory} />
-            default:
-                return null;
-        }
-    }
-
-    const form = getForm();
 
     return loading ? <div>loading...</div>
         : <>
-            <Trigger text={'Create new story'} onClick={() => { isAuthenticated ? setFormType('newStory') : navigate(`/login`) }} />
-            <Trigger text={'Filter'} onClick={() => setFormType('filter')} />
-            {formType !== '' &&
-                <Modal closeModal={() => setFormType('')}>
-                    {form}
+            <input placeholder="Search by story title" value={searchCriteria.storyName} onChange={(e) => handleStoryNameSearch(e.target.value)} />
+            {showModal &&
+                <Modal closeModal={() => setShowModal(false)}>
+                    <Filter
+                        onCloseForm={() => setShowModal(false)}
+                        onApply={() => applyFilters(prevState => !prevState)}
+                        filters={searchCriteria}
+                        changeFilter={(changes) => setSearchCriteria(prevState => ({ ...prevState, ...changes }))} />
                 </Modal>}
             <br></br>
-            <input placeholder="Search by story title" value={searchCriteria.storyName} onChange={(e) => handleStoryNameSearch(e.target.value)} />
+            <SortBy
+                color={searchCriteria.sortDirection === 1 ? 'green' : 'red'}
+                currentCriteria={searchCriteria.sortBy}
+                criteriaChanged={(value) => handleSort(value)} />
+            <Trigger text={'Filter'} onClick={() => setShowModal(true)} />
             {stories.length > 0 ?
+
                 <StoryList
                     addToFavorites={addToFavorites}
                     removeFromFavorites={removeFromFavorites}
                     stories={stories}
-                    favoriteIds={favoriteIds}
-                    handleSort={handleSort} />
+                    favoriteIds={favoriteIds} />
                 : <div>No stories yet for your search criteria.</div>}
         </>
 };

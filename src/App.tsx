@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { Routes, Route, NavLink, BrowserRouter } from "react-router-dom";
 
 import Home from 'containers/Home';
-import Stats from 'containers/Stats';
 import Settings from 'containers/Settings';
 import StoryPage from 'containers/StoryPage';
+import { NewStory } from 'components/NewStory';
 
 import Login from 'authentication/Login';
 import Logout  from 'authentication/Logout';
@@ -29,25 +29,25 @@ const App = () => {
     <div className="App">
       <AuthContext.Provider value={{ authToken, setAuthToken: setToken }}>
         <BrowserRouter>
-          <NavLink to='/'>Home</NavLink>
-          <NavLink to='/stats'>Stats</NavLink>
+          <NavLink to='/'>Stories</NavLink>
+          {authToken !== '' && <NavLink to='/new'>New Story</NavLink>}
           {authToken !== ''
             ? <>
-            <NavLink to='/logout'>Logout</NavLink>
             <NavLink to='/settings'>Profile</NavLink>
+            <NavLink to='/logout'>Logout</NavLink>
             </> 
             : <>
-              <NavLink to='/login'>Login</NavLink>
               <NavLink to='/signup'>Sign up</NavLink>
+              <NavLink to='/login'>Login</NavLink>
             </>}
           <Routes>
             <Route path='/' element={<Home />} />
+            {authToken !== '' && <Route path='/new' element={<NewStory />} />}
             <Route path='/login' element={<Login />} />
             <Route path='/logout' element={<Logout />} />
             <Route path='/signup' element={<Signup />} />
-            <Route path='/:storyId' element={<StoryPage />} />
-            <Route path='/stats' element={<Stats />} />
             <Route path='/settings' element={<Settings />} />
+            <Route path='/:storyId' element={<StoryPage />} />
             <Route path='/forgotPassword' element={<ForgotPassword />} />
             <Route path='/resetPassword/:token' element={<ResetPassword />} />
 

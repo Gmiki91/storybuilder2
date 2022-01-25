@@ -1,1 +1,1 @@
-export type FormTypes = 'filter' | 'newStory' | 'newPage' | 'rateLevel' |'';
+export type FormTypes = 'filter' | 'newPage' | 'rateLevel' |'';
