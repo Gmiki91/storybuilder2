@@ -7,6 +7,7 @@ const Logout = () => {
     const { setAuthToken } = useAuth();
     useEffect(() => {
         localStorage.clear();
+        sessionStorage.clear();
         setAuthToken('');
         navigate("/");
     }, []);
