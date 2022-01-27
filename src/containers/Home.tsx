@@ -22,8 +22,7 @@ type SearchCriteria = {
 const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 const Home: React.FC = () => {
     console.log('[HOME] render');
-    const token = useAuth().authToken;
-    const isAuthenticated = token !== '';
+    const {token} = useAuth();
     const [searchCriteria, setSearchCriteria] = useState<SearchCriteria>({
         storyName: '',
         sortBy: 'rating',
@@ -40,9 +39,9 @@ const Home: React.FC = () => {
     const [loading, isLoading] = useState(false);
 
     useEffect(() => {
-        if (isAuthenticated)
+        if (token)
             axios.get(`${LOCAL_HOST}/users/favorites`, { headers }).then(result => setFavoriteIds(result.data.data))
-    }, [isAuthenticated]);
+    }, [token]);
 
     useEffect(() => {
         isLoading(true);

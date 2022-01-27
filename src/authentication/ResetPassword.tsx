@@ -6,7 +6,7 @@ import { LOCAL_HOST } from "constants/constants";
 
 const ResetPassword = () => {
     const navigate = useNavigate();
-    const { setAuthToken } = useAuth();
+    const { setToken } = useAuth();
     const { token } = useParams()
     const [password, setPassword] = useState('');
     const [error, setError] = useState();
@@ -15,7 +15,7 @@ const ResetPassword = () => {
     const resetPassword = () => {
         axios.patch(`${LOCAL_HOST}/users/resetPassword/${token}`, { password })
             .then(result => {
-                setAuthToken(result.data.data);
+                setToken(result.data.data);
                 setLoggedIn(true);
             })
             .catch(error => setError(error.response.data.message));

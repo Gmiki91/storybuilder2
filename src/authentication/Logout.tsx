@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 
 const Logout = () => {
     const navigate = useNavigate();
-    const { setAuthToken } = useAuth();
+    const { setToken } = useAuth();
     useEffect(() => {
         localStorage.clear();
         sessionStorage.clear();
-        setAuthToken('');
+        setToken(undefined);
         navigate("/");
     }, []);
 

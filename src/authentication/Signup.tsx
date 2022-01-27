@@ -10,7 +10,7 @@ const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setAuthToken} = useAuth();
+  const { setToken} = useAuth();
   const navigate = useNavigate();
 
   const postSignup = () => {
@@ -20,7 +20,7 @@ const Signup = () => {
       password
     }).then(result => {
       if (result.status === 201) {
-        setAuthToken(result.data.token);
+        setToken(result.data.token);
         navigate("/");
       } else {
         setIsError(true);

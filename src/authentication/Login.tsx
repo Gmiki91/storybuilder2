@@ -10,7 +10,7 @@ const Login = () => {
   const [isError, setIsError] = useState(false);
   const [userInput, setUserInput] = useState("");
   const [password, setPassword] = useState("");
-  const { setAuthToken } = useAuth();
+  const { setToken } = useAuth();
   const navigate = useNavigate();
 
   const postLogin = () => {
@@ -19,7 +19,7 @@ const Login = () => {
       password
     }).then(result => {
       if (result.status === 200) {
-        setAuthToken(result.data.token);
+        setToken(result.data.token);
         navigate("/");
       } else {
         setIsError(true);
@@ -33,7 +33,7 @@ const Login = () => {
     if ('tokenId' in response) {
         axios.post(`${LOCAL_HOST}/users/loginGoogle`,{token:response.tokenId}).then(result=>{
           if (result.status === 200) {
-            setAuthToken(result.data.token);
+            setToken(result.data.token);
             navigate("/");
           } else {
             setIsError(true);

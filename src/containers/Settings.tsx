@@ -4,7 +4,7 @@ import { LOCAL_HOST } from "constants/constants";
 import { useAuth } from 'context/AuthContext';
 const Settings = () => {
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}`};
-    const { setAuthToken } = useAuth();
+    const { setToken } = useAuth();
     const [user, setUser] = useState();
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -23,7 +23,7 @@ const Settings = () => {
         axios.patch(`${LOCAL_HOST}/users/updatePassword`,{currentPassword, newPassword} ,{ headers })
         .then(result => {
             setResponse(result.data.message);
-            setAuthToken(result.data.token);
+            setToken(result.data.token);
         })
         .catch(error => setResponse(error.response.data.message));
     }

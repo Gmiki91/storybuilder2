@@ -1,6 +1,13 @@
 import React, { createContext, useContext } from 'react';
-
-export const AuthContext = createContext({authToken:'', setAuthToken:(data:React.SetStateAction<string>) => {}});
+type AuthProps ={
+  token:string|undefined;
+  setToken:React.Dispatch<string|undefined>
+}
+const DEFAULT_VALUE:AuthProps = {
+  token: undefined,
+  setToken: () => {}
+};
+export const AuthContext = createContext(DEFAULT_VALUE);
 
 export const useAuth=()=> {
   return useContext(AuthContext);

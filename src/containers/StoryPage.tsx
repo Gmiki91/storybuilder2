@@ -21,7 +21,7 @@ const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 const StoryPage = () => {
   console.log('[StoryPage] renders');
   const navigate = useNavigate();
-  const isAuthenticated = useAuth().authToken !== '';
+  const {token} = useAuth();
   const { storyId } = useParams<Params>();
   const [userId, setUserId] = useState('');
   const [story, setStory] = useState({} as Story);
@@ -110,7 +110,7 @@ const StoryPage = () => {
   }
 
   const handleRateText = async (vote: number, confirming: boolean) => {
-    if (isAuthenticated) {
+    if (token) {
       if (confirming) {
         confirmPage(vote);
       } else {
@@ -125,7 +125,7 @@ const StoryPage = () => {
   }
 
   const handleRateLevel = (rate: string) => {
-    if (isAuthenticated) {
+    if (token) {
       const body = { rate: rate, pageId: page._id };
       axios.put(`${LOCAL_HOST}/pages/rateLevel`, body, { headers }).then((result) => {
         setPage(result.data.updatedPage);
@@ -190,7 +190,7 @@ const StoryPage = () => {
           {page._id && <div><input value={currentPageIndex + 1} onChange={(event) => jumpTo(event.target.value)} /> / {story[pageType]?.length}</div>}
           {!onLastPage && <button onClick={() => setCurrentPageIndex(prevState => prevState + 1)}>next</button>}
         </div>
-        {addPageVisible && <button onClick={() => { isAuthenticated ? setFormType('newPage') : navigate('/login') }}>Add Page</button>}
+        {addPageVisible && <button onClick={() => { token ? setFormType('newPage') : navigate('/login') }}>Add Page</button>}
         {toggleStatus}
       </>
 }

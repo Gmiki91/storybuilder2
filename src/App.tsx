@@ -16,23 +16,21 @@ import ResetPassword from 'authentication/ResetPassword';
 import { AuthContext } from 'context/AuthContext'
 
 const App = () => {
-  const token = localStorage.getItem("token");
-  const existingToken = token ? token : '';
-  const [authToken, setAuthToken] = useState(existingToken);
+  const token = localStorage.getItem("token") || undefined;
+  const [authToken, setAuthToken] = useState(token);
 
-  const setToken = (data: React.SetStateAction<string>) => {
-    localStorage.setItem("token", data.toString());
-    setAuthToken(data);
+  const setToken = (token:string|undefined) => {
+    token && localStorage.setItem("token", token.toString());
+    setAuthToken(token);
   }
 
   return (
     <div className="App">
-      <AuthContext.Provider value={{ authToken, setAuthToken: setToken }}>
+      <AuthContext.Provider value={{ token, setToken }}>
         <BrowserRouter>
           <NavLink to='/'>Stories</NavLink>
-          {authToken !== '' && <NavLink to='/new'>New Story</NavLink>}
-          {authToken !== ''
-            ? <>
+          {token && <NavLink to='/new'>New Story</NavLink>}
+          {token? <>
             <NavLink to='/settings'>Profile</NavLink>
             <NavLink to='/logout'>Logout</NavLink>
             </> 
