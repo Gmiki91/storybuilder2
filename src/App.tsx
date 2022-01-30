@@ -29,8 +29,8 @@ const App = () => {
       <AuthContext.Provider value={{ token, setToken }}>
         <BrowserRouter>
           <NavLink to='/'>Stories</NavLink>
-          {token && <NavLink to='/new'>New Story</NavLink>}
-          {token? <>
+          {authToken && <NavLink to='/new'>New Story</NavLink>}
+          {authToken? <>
             <NavLink to='/settings'>Profile</NavLink>
             <NavLink to='/logout'>Logout</NavLink>
             </> 
@@ -40,7 +40,7 @@ const App = () => {
             </>}
           <Routes>
             <Route path='/' element={<Home />} />
-            {authToken !== '' && <Route path='/new' element={<NewStory />} />}
+            {authToken && <Route path='/new' element={<NewStory />} />}
             <Route path='/login' element={<Login />} />
             <Route path='/logout' element={<Logout />} />
             <Route path='/signup' element={<Signup />} />

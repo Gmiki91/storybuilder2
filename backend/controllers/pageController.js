@@ -6,7 +6,6 @@ exports.getPage = catchAsync(async (req, res, next) => {
     const page = await Page.findById(req.params.id);
 
     if (!page) return next(new AppError(`No page found with ID ${req.params.id}`, 404))
-
     res.status(200).json({
         status: 'success',
         page: mappedPage(page)
@@ -20,6 +19,7 @@ exports.createPage = catchAsync(async (req, res, next) => {
         levels: [{ userId: '', rate: mapRateStringToNum(req.body.level) }],
         language: req.body.language,
         authorId: req.body.user._id,
+        authorName:req.body.user.name,
         storyId: req.body.storyId,
         ratings: req.body.rating
     });

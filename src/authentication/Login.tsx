@@ -4,7 +4,7 @@ import axios from 'axios';
 import GoogleLogin, { GoogleLoginResponse, GoogleLoginResponseOffline } from 'react-google-login';
 import { useAuth } from 'context/AuthContext';
 import { LOCAL_HOST } from "constants/constants";
-import { Card, Form, Input, Button } from 'authentication/AuthForm';
+import { Card, Form, Input, Button,Error } from 'authentication/AuthForm';
 
 const Login = () => {
   const [isError, setIsError] = useState(false);
@@ -74,7 +74,7 @@ const Login = () => {
         cookiePolicy={'single_host_origin'} />
       <Link to="/forgotPassword">Forgot your password?</Link>
       <Link to="/signup">Don't have an account?</Link>
-      {isError && <div>The username or password provided were incorrect!</div>}
+      {isError && <Error>The username or password provided were incorrect!</Error>}
     </Card>
   );
 }
