@@ -114,10 +114,9 @@ const StoryPage = () => {
       if (confirming) {
         confirmPage(vote);
       } else {
-        const { newPage, difference } = await axios.put(`${LOCAL_HOST}/pages/rateText`, { vote, pageId: page._id }, { headers }).then(result => result.data);
+        const { newPage } = await axios.put(`${LOCAL_HOST}/pages/rateText`, { vote, pageId: page._id }, { headers }).then(result => result.data);
         setPage(newPage);
-        console.log(difference);
-        if (pageStatus === 'confirmed') axios.put(`${LOCAL_HOST}/stories/rate`, { difference, storyId }); // rate only counts if page is not pending
+        if (pageStatus === 'confirmed') axios.put(`${LOCAL_HOST}/stories/rate`, { vote, storyId }); // rate only counts if page is not pending
       }
     } else {
       navigate(`/login`);

@@ -1,7 +1,8 @@
 const Story = require('../models/story');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-
+const wilson = require('wilson-score-interval');
+const saveVote = require('../utils/vote');
 exports.createStory = catchAsync(async (req, res, next) => {
     const story = await Story.create({
         title: req.body.title,
@@ -9,7 +10,10 @@ exports.createStory = catchAsync(async (req, res, next) => {
         language: req.body.language,
         level: req.body.level,
         authorId: req.body.user._id,
-        rating: 0,
+        authorName: req.body.user.name,
+        ratings: [],
+        upVotes: 0,
+        ratingAvg: 0,
         updatedAt: new Date(),
         openEnded: false,
         pageIds: [],
@@ -17,7 +21,7 @@ exports.createStory = catchAsync(async (req, res, next) => {
     });
     res.status(201).json({
         status: 'success',
-        story
+        story: mappedStory(story)
     })
 })
 
@@ -25,7 +29,7 @@ exports.getStory = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.params.id);
     res.status(200).json({
         status: 'success',
-        story
+        story: mappedStory(story)
     })
 })
 
@@ -48,12 +52,12 @@ exports.getStories = catchAsync(async (req, res, next) => {
 
     const result = await Story
         .find(query)
-        .sort(sortObject)
-        .limit(50);
+        .sort(sortObject);
 
+    const mappedResult = result.map(story => mappedStory(story))
     res.status(200).json({
         status: 'success',
-        data: result
+        data: mappedResult
     })
 })
 
@@ -66,23 +70,30 @@ exports.deleteStory = catchAsync(async (req, res, next) => {
 })
 
 exports.rateStory = catchAsync(async (req, res, next) => {
-    const story = await Story.findById(req.body.storyId);
-    story.rating += req.body.difference;
-    await story.save();
-    res.status(200).json({
-        status: 'success',
-        story
+    const { user, storyId, vote } = req.body;
+    const story = await Story.findById(storyId);
+    const updatedStory = await saveVote(user._id.toString(), vote, story);
+    updateRateValues(story);
+    updatedStory.save();
+    res.status(201).json({
+        status: 'success'
     })
 })
 
+
 exports.addPage = catchAsync(async (req, res, next) => {
-    const story = req.body.story;
+    const {story, pageId, pageRatings} = req.body;
     story.pendingPageIds = []; //removing all pending pages;
-    story.pageIds.push(req.body.pageId);
+    story.pageIds.push(pageId);
+    
+    if(pageRatings.length>0){
+        story.ratings.push(pageRatings);
+        updateRateValues(story);
+    }
     await story.save();
     res.status(200).json({
         status: 'success',
-        story
+        story:mappedStory(story)
     })
 })
 
@@ -92,7 +103,7 @@ exports.addPendingPage = catchAsync(async (req, res, next) => {
     await story.save();
     res.status(200).json({
         status: 'success',
-        story
+        story:mappedStory(story)
     })
 })
 
@@ -103,7 +114,7 @@ exports.removePendingPage = catchAsync(async (req, res, next) => {
     await story.save();
     res.status(200).json({
         status: 'success',
-        story
+        story:mappedStory(story)
     })
 })
 
@@ -113,3 +124,32 @@ exports.ownStoryCheck = catchAsync(async (req, res, next) => {
     req.body.story = story;
     next();
 })
+
+const updateRateValues = (story) =>{
+    story.upVotes = story.ratings
+    .filter(rating => rating.rate === 1)
+    .reduce((sum, rating) => sum + rating.rate, 0)
+    const totalVotes = story.ratings.length;
+    const { left, right } = wilson(story.upVotes, totalVotes);
+    story.ratingAvg = (left + right) / 2;
+}
+
+
+const mappedStory = story => ({
+    _id: story._id,
+    title: story.title,
+    description: story.description,
+    language: story.language,
+    level: story.level,
+    authorId: story.authorId,
+    authorName: story.authorName,
+    updatedAt: story.updatedAt,
+    openEnded: story.openEnded,
+    pageIds: story.pageIds,
+    pendingPageIds: story.pendingPageIds,
+    rating: {
+        positive: story.upVotes,
+        total: story.ratings.length,
+        average: story.ratingAvg
+    }
+});

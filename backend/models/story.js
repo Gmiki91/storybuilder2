@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Rating = require('./subSchema');
 
 const storySchema = mongoose.Schema({
     title: String,
@@ -6,7 +7,10 @@ const storySchema = mongoose.Schema({
     language: String,
     level: String,
     authorId: String,
-    rating: Number,
+    authorName: String,
+    ratings: [Rating],
+    upVotes:Number,
+    ratingAvg:Number,
     updatedAt: Date,
     openEnded: Boolean,
     pageIds: [String],

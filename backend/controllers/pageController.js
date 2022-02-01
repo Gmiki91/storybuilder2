@@ -1,6 +1,7 @@
 const Page = require('../models/page');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const saveVote = require('../utils/vote');
 
 exports.getPage = catchAsync(async (req, res, next) => {
     const page = await Page.findById(req.params.id);
@@ -16,7 +17,7 @@ exports.getPage = catchAsync(async (req, res, next) => {
 exports.createPage = catchAsync(async (req, res, next) => {
     const page = await Page.create({
         text: req.body.text,
-        levels: [{ userId: '', rate: mapRateStringToNum(req.body.level) }],
+        levels: [{ userId: req.body.user._id, rate: mapRateStringToNum(req.body.level) }],
         language: req.body.language,
         authorId: req.body.user._id,
         authorName:req.body.user.name,
@@ -30,31 +31,16 @@ exports.createPage = catchAsync(async (req, res, next) => {
 })
 
 exports.rateText = catchAsync(async (req, res, next) => {
-    const page = await Page.findById(req.body.pageId);
+    const {user,pageId, vote} = req.body;
+    const page = await Page.findById(pageId);
+    //console.log(obj);
+    if (!page) return next(new AppError(`No page found with ID ${pageId}`, 404))
 
-    if (!page) return next(new AppError(`No page found with ID ${req.body.pageId}`, 404))
-
-    const { vote } = req.body;
-    let difference;
-
-    const originalVote = page.ratings.find(rate => rate.userId === req.body.user._id.toString());
-    if (vote === 0) { // there was a previous vote which has been cancelled
-        difference = -originalVote.rate;
-        const index = page.ratings.indexOf(originalVote);
-        page.ratings.splice(index, 1);
-    } else if (Math.abs(vote) === 1) { // there was no previous vote
-        difference = vote;
-        page.ratings.push({ userId: req.body.user._id, rate: vote })
-    } else { // there was a previous vote, the opposite of current vote (Math.abs(vote) === 2)
-        difference = -2 * originalVote.rate;
-        originalVote.rate = -originalVote.rate
-    }
-
-    await page.save();
+    const updatedPage = await saveVote(user._id.toString(),vote,page);
+    console.log(updatedPage);
     res.status(201).json({
         status: 'success',
-        newPage: mappedPage(page),
-        difference
+        newPage: mappedPage(updatedPage)
     })
 })
 
