@@ -54,10 +54,10 @@ exports.getStories = catchAsync(async (req, res, next) => {
         .find(query)
         .sort(sortObject);
 
-    const mappedResult = result.map(story => mappedStory(story))
+    const mappedResult = result.map(story => ({...mappedStory(story),key:story._id}))
     res.status(200).json({
         status: 'success',
-        data: mappedResult
+        stories: mappedResult
     })
 })
 
@@ -150,6 +150,14 @@ const mappedStory = story => ({
     rating: {
         positive: story.upVotes,
         total: story.ratings.length,
-        average: story.ratingAvg
+        average: getAverageRateInText(story.ratingAvg)
     }
 });
+
+const getAverageRateInText = (rate) =>{
+    if(rate>=80) return 'Excellent';
+    if(rate<80 && rate>=60 ) return 'Good';
+    if(rate<60 && rate>=40 ) return 'Mixed';
+    if(rate<40 && rate>=20 ) return 'Bad';
+    if(rate<20) return 'Terrible';
+}
