@@ -34,20 +34,18 @@ exports.getStory = catchAsync(async (req, res, next) => {
 })
 
 exports.getStories = catchAsync(async (req, res, next) => {
+    const { sortBy, sortDirection,storyName,languages,levels,openEnded,from,user } = req.body;
     const query = {};
     const sortObject = {};
-    if (req.body.from === 'own') {
+    
+    if (from === 'own')  query['authorId'] = user._id
+    else if (from === 'favorite') query['_id'] ={ $in: user.favoriteStoryIdList};
 
-        //query['authorId'] = userId
-    } else if (req.body.from === 'favorites') {
-        //query['authorId'] = favorites
-    }
-    if (req.body.storyName.length > 2) query['title'] = req.body.storyName;
-    if (req.body.languages.length > 0) query['language'] = req.body.languages;
-    if (req.body.levels.length > 0) query['level'] = req.body.levels;
-    if (req.body.openEnded !== 'both') query['openEnded'] = req.body.openEnded;
-
-    const { sortBy, sortDirection } = req.body;
+    if (storyName.length > 2) query['title'] = { $regex:new RegExp(`${storyName}`, 'i')};
+    if (languages.length > 0) query['language'] = languages;
+    if (levels.length > 0) query['level'] = levels;
+    if (openEnded !== 'both') query['openEnded'] = openEnded;
+console.log(query['title'])
     sortObject[sortBy] = sortDirection;
 
     const result = await Story
