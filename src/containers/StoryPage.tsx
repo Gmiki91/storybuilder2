@@ -19,7 +19,6 @@ type status = 'pending' | 'confirmed';
 const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 
 const StoryPage = () => {
-  console.log('[StoryPage] renders');
   const navigate = useNavigate();
   const {token} = useAuth();
   const { storyId } = useParams<Params>();

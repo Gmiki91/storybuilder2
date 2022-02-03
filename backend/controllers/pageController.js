@@ -20,7 +20,7 @@ exports.createPage = catchAsync(async (req, res, next) => {
         levels: [{ userId: req.body.user._id, rate: mapRateStringToNum(req.body.level) }],
         language: req.body.language,
         authorId: req.body.user._id,
-        authorName:req.body.user.name,
+        authorName: req.body.user.name,
         storyId: req.body.storyId,
         ratings: req.body.rating
     });
@@ -31,13 +31,11 @@ exports.createPage = catchAsync(async (req, res, next) => {
 })
 
 exports.rateText = catchAsync(async (req, res, next) => {
-    const {user,pageId, vote} = req.body;
+    const { user, pageId, vote } = req.body;
     const page = await Page.findById(pageId);
-    //console.log(obj);
     if (!page) return next(new AppError(`No page found with ID ${pageId}`, 404))
 
-    const updatedPage = await saveVote(user._id.toString(),vote,page);
-    console.log(updatedPage);
+    const updatedPage = await saveVote(user._id.toString(), vote, page);
     res.status(201).json({
         status: 'success',
         newPage: mappedPage(updatedPage)
@@ -53,9 +51,9 @@ exports.rateLevel = catchAsync(async (req, res, next) => {
     const vote = page.levels.find(level => level.userId === req.body.user._id.toString());
     vote ? vote.rate = rate : page.levels.push({ userId: req.body.user._id, rate: rate });
     await page.save();
-    res.status(204).json({
+    res.status(201).json({
         status: 'success',
-        updatedPage:mappedPage(page)
+        updatedPage: mappedPage(page)
     });
 })
 
@@ -88,10 +86,13 @@ exports.deletePendingPages = catchAsync(async (req, res, next) => {
 })
 
 const mappedPage = page => {
-    return {
-        ...page.toObject(),
-        level: mapRateNumToString(page.levels
-            .reduce((sum, level) => sum + level.rate, 0) / page.levels.length)
+    const code  =  mapRateNumToString(page.levels.reduce((sum, level) => sum + level.rate, 0) / page.levels.length);
+    const {levels, ...props} = page.toObject();
+    return {...props,
+        level: {
+            code: code,
+            text: getTextByCode(code)
+        }
     }
 };
 
@@ -114,4 +115,15 @@ const mapRateStringToNum = (rate) => {
         case 'C': return 5;
         case 'N': return 6;
     }
+}
+
+const getTextByCode = (code)=>{
+    switch (code) {
+        case 'A': return'Beginner'
+        case 'A+': return 'Lower-intermediate'
+        case 'B': return 'Intermediate'
+        case 'B+': return 'Upper-intermediate'
+        case 'C': return 'Advanced'
+        case 'N': return 'Native'
+}
 }

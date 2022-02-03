@@ -19,6 +19,4 @@ router
     .get(storyController.getStory)
     .delete(authCheck,storyController.deleteStory);
 
-
-
 module.exports = router;

@@ -54,7 +54,7 @@ exports.getStories = catchAsync(async (req, res, next) => {
         .find(query)
         .sort(sortObject);
 
-    const mappedResult = result.map(story => ({...mappedStory(story),key:story._id}))
+    const mappedResult = result.map(story => ({ ...mappedStory(story), key: story._id }))
     res.status(200).json({
         status: 'success',
         stories: mappedResult
@@ -82,18 +82,18 @@ exports.rateStory = catchAsync(async (req, res, next) => {
 
 
 exports.addPage = catchAsync(async (req, res, next) => {
-    const {story, pageId, pageRatings} = req.body;
+    const { story, pageId, pageRatings } = req.body;
     story.pendingPageIds = []; //removing all pending pages;
     story.pageIds.push(pageId);
-    
-    if(pageRatings.length>0){
+
+    if (pageRatings.length > 0) {
         story.ratings.push(pageRatings);
         updateRateValues(story);
     }
     await story.save();
     res.status(200).json({
         status: 'success',
-        story:mappedStory(story)
+        story: mappedStory(story)
     })
 })
 
@@ -103,7 +103,7 @@ exports.addPendingPage = catchAsync(async (req, res, next) => {
     await story.save();
     res.status(200).json({
         status: 'success',
-        story:mappedStory(story)
+        story: mappedStory(story)
     })
 })
 
@@ -114,7 +114,7 @@ exports.removePendingPage = catchAsync(async (req, res, next) => {
     await story.save();
     res.status(200).json({
         status: 'success',
-        story:mappedStory(story)
+        story: mappedStory(story)
     })
 })
 
@@ -125,39 +125,32 @@ exports.ownStoryCheck = catchAsync(async (req, res, next) => {
     next();
 })
 
-const updateRateValues = (story) =>{
+const updateRateValues = (story) => {
     story.upVotes = story.ratings
-    .filter(rating => rating.rate === 1)
-    .reduce((sum, rating) => sum + rating.rate, 0)
+        .filter(rating => rating.rate === 1)
+        .reduce((sum, rating) => sum + rating.rate, 0)
     const totalVotes = story.ratings.length;
     const { left, right } = wilson(story.upVotes, totalVotes);
-    story.ratingAvg = (left + right) / 2;
+    story.ratingAvg = left;
 }
 
 
-const mappedStory = story => ({
-    _id: story._id,
-    title: story.title,
-    description: story.description,
-    language: story.language,
-    level: story.level,
-    authorId: story.authorId,
-    authorName: story.authorName,
-    updatedAt: story.updatedAt,
-    openEnded: story.openEnded,
-    pageIds: story.pageIds,
-    pendingPageIds: story.pendingPageIds,
-    rating: {
-        positive: story.upVotes,
-        total: story.ratings.length,
-        average: getAverageRateInText(story.ratingAvg)
-    }
-});
+const mappedStory = story => {
+    const { ratings, ...props } = story.toObject();
+    return ({
+        ...props,
+        rating: {
+            positive: story.upVotes,
+            total: story.ratings.length,
+            average: getAverageRateInText(story.ratingAvg)
+        }
+    });
+}
 
-const getAverageRateInText = (rate) =>{
-    if(rate>=80) return 'Excellent';
-    if(rate<80 && rate>=60 ) return 'Good';
-    if(rate<60 && rate>=40 ) return 'Mixed';
-    if(rate<40 && rate>=20 ) return 'Bad';
-    if(rate<20) return 'Terrible';
+const getAverageRateInText = (rate) => {
+    if (rate >= 0.80) return 'Excellent';
+    if (rate < 0.80 && rate >= 0.60) return 'Good';
+    if (rate < 0.60 && rate >= 0.40) return 'Mixed';
+    if (rate < 0.40 && rate >= 0.20) return 'Bad';
+    if (rate < 0.20) return 'Terrible';
 }
