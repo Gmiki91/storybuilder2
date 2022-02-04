@@ -45,7 +45,6 @@ exports.getStories = catchAsync(async (req, res, next) => {
     if (languages.length > 0) query['language'] = languages;
     if (levels.length > 0) query['level'] = levels;
     if (openEnded !== 'both') query['openEnded'] = openEnded;
-console.log(query['title'])
     sortObject[sortBy] = sortDirection;
 
     const result = await Story
@@ -88,6 +87,7 @@ exports.addPage = catchAsync(async (req, res, next) => {
         story.ratings.push(pageRatings);
         updateRateValues(story);
     }
+    story.updatedAt=Date.now();
     await story.save();
     res.status(200).json({
         status: 'success',
@@ -98,6 +98,7 @@ exports.addPage = catchAsync(async (req, res, next) => {
 exports.addPendingPage = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.body.storyId);
     story.pendingPageIds.push(req.body.pageId);
+    story.updatedAt=Date.now();
     await story.save();
     res.status(200).json({
         status: 'success',
