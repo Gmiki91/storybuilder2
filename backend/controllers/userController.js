@@ -1,13 +1,24 @@
 const catchAsync = require('../utils/catchAsync');
 const User = require('../models/user');
-exports.getUser = (req, res) => {
+exports.getMe = (req, res) => {
     res.status(200).json({
         status: 'success',
         user: req.body.user
     });
 }
-
-exports.deleteUser = catchAsync(async (req, res, next) => {
+exports.getUser=catchAsync(async (req,res,next)=>{
+    const user = await User.findById(req.params.id); 
+    res.status(200).json({
+        status: 'success',
+        user:{
+            _id:user._id,
+            name:user.name,
+            email:user.email,
+            rating:user.writerRating
+        }
+    })
+})
+exports.deleteMe = catchAsync(async (req, res, next) => {
     const user = await User.findById(req.body.user._id).select('active');
     user.active = false;
     await user.save();

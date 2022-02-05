@@ -53,7 +53,7 @@ exports.loginGoogle = catchAsync(async (req, res, next) => {
         user = await User.create({
             name,
             email,
-            password:'??????',
+            password: '??????',
             favoriteStoryIdList: [],
             writerRating: 0,
         })
@@ -82,24 +82,33 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 })
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
-    const user = await User.findOne({ email: req.body.email });
-    if (!user) return next(new AppError(`No user found with email ${req.body.email}.`, 400));
-
-    const resetToken = user.createPasswordResetToken();
-    await user.save();
-
-    //const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
-    const resetUrl = `http://localhost:3000/resetPassword/${resetToken}`;
-    const message = `Click the link to reset your password: ${resetUrl}`;
+    const { email } = req.body.email;
+    const user = await User.findOne({ email });
+    let message;
+    let subject;
+    if (user) {
+        const resetToken = user.createPasswordResetToken();
+        //const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+        const resetUrl = `http://localhost:3000/resetPassword/${resetToken}`;
+        subject = 'Your password reset token (valid for 10 minutes).';
+        message = `Click the link to reset your password: ${resetUrl}`;
+        await user.save();
+    }else{
+        subject='Account access attempted';
+         message = `You or someone else entered this email address when trying to change the password of an account.
+         However, this email address is not in our database.
+         If you are a registered user, please try again using the email address you gave when you registered.
+         If you are not a registered user, please ignore this email.`;
+    }
     try {
         await sendEmail({
-            email: user.email,
-            subject: 'Your password reset token (valid for 10 minutes).',
+            email,
+            subject,
             message
         });
         res.status(200).json({
             status: 'success',
-            message: 'Please check your email for the password reset link!'
+            message: `An email has been sent to ${email} with further instructions`
         })
     } catch (err) {
         user.createPasswordResetToken = undefined;
