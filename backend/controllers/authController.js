@@ -19,7 +19,6 @@ exports.signup = catchAsync(async (req, res, next) => {
         email: req.body.email,
         password: req.body.password,
         favoriteStoryIdList: [],
-        writerRating: 0,
     });
     const token = signToken(user._id);
     res.status(201).json({

@@ -27,7 +27,6 @@ const user = mongoose.Schema({
     passwordResetToken: String,
     passwordResetExpires: Date,
     favoriteStoryIdList: [String],
-    writerRating: Number,
 }, { collection: 'users' })
 
 user.pre('save', async function (next) {

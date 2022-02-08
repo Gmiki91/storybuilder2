@@ -5,6 +5,7 @@ const authCheck = require('../middleware/authCheck');
 
 router.post('/',authCheck, storyController.createStory);
 router.post('/all',authCheck,storyController.getStories);
+router.get('/all/:authorId',authCheck,storyController.getStoryDataByAuthor);
 
 router.put('/rate',authCheck,storyController.rateStory);
 router.put('/page',authCheck, storyController.ownStoryCheck, storyController.addPage);
