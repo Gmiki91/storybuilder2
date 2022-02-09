@@ -15,7 +15,7 @@ exports.createStory = catchAsync(async (req, res, next) => {
         upVotes: 0,
         ratingAvg: 0,
         updatedAt: new Date(),
-        openEnded: false,
+        openEnded: req.body.openEnded,
         pageIds: [],
         pendingPageIds: []
     });
