@@ -21,8 +21,8 @@ const user = mongoose.Schema({
     active:{
         type:Boolean,
         default:true,
-        select: false,
     },
+    lastLoggedIn: Date,
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
@@ -44,10 +44,10 @@ user.pre('save', function(next){
     next();
 })
 
-user.pre(/^find/,function(next){
-    this.find({active:true});
-    next();
-})
+// user.pre(/^find/,function(next){
+//     this.find({active:true});
+//     next();
+// })
 
 user.methods.correctPassword = async function (candidatePw, userPw) {
     return await bcrypt.compare(candidatePw, userPw)

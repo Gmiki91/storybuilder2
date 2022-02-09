@@ -1,6 +1,8 @@
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 const User = require('../models/user');
 exports.getMe = (req, res) => {
+
     res.status(200).json({
         status: 'success',
         user: req.body.user
@@ -8,17 +10,22 @@ exports.getMe = (req, res) => {
 }
 exports.getUser=catchAsync(async (req,res,next)=>{
     const user = await User.findById(req.params.id); 
+    console.log(user);    
     res.status(200).json({
         status: 'success',
         user:{
             _id:user._id,
             name:user.name,
             email:user.email,
+            lastLoggedIn:user.lastLoggedIn,
+            active:user.active
         }
     })
 })
 exports.deleteMe = catchAsync(async (req, res, next) => {
-    const user = await User.findById(req.body.user._id).select('active');
+    const user = await User.findById(req.body.user._id).select(['+password', 'active']);
+    const { deletePassword } = req.body;
+    if (!user || !(await user.correctPassword(deletePassword, user.password))) return next(new AppError(`Incorrect password`, 401));
     user.active = false;
     await user.save();
     res.status(201).json({

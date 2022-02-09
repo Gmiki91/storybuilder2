@@ -34,13 +34,13 @@ exports.getStory = catchAsync(async (req, res, next) => {
 })
 
 exports.getStories = catchAsync(async (req, res, next) => {
-    const { sortBy, sortDirection,storyName,languages,levels,openEnded,from,user } = req.body;
+    const { sortBy, sortDirection, storyName, languages, levels, openEnded, from, user } = req.body;
     const query = {};
     const sortObject = {};
-    if (from === 'own')  query['authorId'] = user._id
-    else if (from === 'favorite') query['_id'] ={ $in: user.favoriteStoryIdList};
+    if (from === 'own') query['authorId'] = user._id
+    else if (from === 'favorite') query['_id'] = { $in: user.favoriteStoryIdList };
 
-    if (storyName.length > 2) query['title'] = { $regex:new RegExp(`${storyName}`, 'i')};
+    if (storyName.length > 2) query['title'] = { $regex: new RegExp(`${storyName}`, 'i') };
     if (languages.length > 0) query['language'] = languages;
     if (levels.length > 0) query['level'] = levels;
     if (openEnded !== 'both') query['openEnded'] = openEnded;
@@ -85,7 +85,7 @@ exports.addPage = catchAsync(async (req, res, next) => {
         story.ratings.push(pageRatings);
         updateRateValues(story);
     }
-    story.updatedAt=Date.now();
+    story.updatedAt = Date.now();
     await story.save();
     res.status(200).json({
         status: 'success',
@@ -96,7 +96,7 @@ exports.addPage = catchAsync(async (req, res, next) => {
 exports.addPendingPage = catchAsync(async (req, res, next) => {
     const story = await Story.findById(req.body.storyId);
     story.pendingPageIds.push(req.body.pageId);
-    story.updatedAt=Date.now();
+    story.updatedAt = Date.now();
     await story.save();
     res.status(200).json({
         status: 'success',
@@ -115,18 +115,34 @@ exports.removePendingPage = catchAsync(async (req, res, next) => {
     })
 })
 
-exports.getStoryDataByAuthor=catchAsync(async (req, res, next) => {
-    const {authorId} = req.params;
-    const stories =  await Story.find({authorId});
+exports.getStoryDataByAuthor = catchAsync(async (req, res, next) => {
+    const { authorId } = req.params;
+    const stories = await Story.find({ authorId });
     //const textRating = getAverageRateInText(stories.reduce((sum,story)=>sum+story.ratingAvg,0))
-    const totalVotes = stories.reduce((sum,story)=>sum+story.ratings.length,0);
-    const upVotes = stories.reduce((sum,story)=>sum+story.upVotes,0);
+    const totalVotes = stories.reduce((sum, story) => sum + story.ratings.length, 0);
+    const upVotes = stories.reduce((sum, story) => sum + story.upVotes, 0);
     res.status(200).json({
         status: 'success',
         size: stories.length,
         upVotes,
         totalVotes
         // textRating
+    })
+})
+
+exports.closeStoriesByAuthor = catchAsync(async (req, res, next) => {
+    const { authorId } = req.params;
+    const stories = await Story.find({ authorId });
+    stories.forEach(story => {
+        if (story.openEnded) {
+            story.openEnded = false;
+            try {
+                story.save();
+            } catch (err) { return next(new AppError('Something went wrong', 500)); }
+        }
+    })
+    res.status(201).json({
+        status: 'success',
     })
 })
 

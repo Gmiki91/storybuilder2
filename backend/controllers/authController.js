@@ -32,7 +32,8 @@ exports.login = catchAsync(async (req, res, next) => {
     const query = userInput.includes('@') ? { email: userInput } : { name: userInput };
     const user = await User.findOne(query).select('+password');
     if (!user || !(await user.correctPassword(password, user.password))) return next(new AppError(`Incorrect ${query.key}/password`, 401));
-
+    user.lastLoggedIn = new Date();
+    user.save();
     const token = signToken(user._id);
     res.status(200).json({
         status: 'success',
